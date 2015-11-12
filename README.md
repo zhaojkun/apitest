@@ -1,4 +1,4 @@
-# Swaggerilla - write tests and generate docs!
+# Testilla - write tests and generate docs!
 
 Simple test framework for API testing. Should be used against running dev instance of the API.
 
