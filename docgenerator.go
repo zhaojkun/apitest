@@ -22,7 +22,7 @@ type swaggerYmlGenerator struct {
 // as a seed. The generator produces YML output
 func NewSwaggerYmlGenerator(seed spec.Swagger) IDocGenerator {
 	gen := &swaggerYmlGenerator{
-		s: seed,
+		swagger: seed,
 	}
 	gen.swagger.Swagger = "2.0" // from swagger doc: 'The value MUST be "2.0"'
 	gen.swagger.Info = &spec.Info{}
@@ -68,7 +68,7 @@ func (g *swaggerYmlGenerator) Generate(tests []IApiTest) ([]byte, error) {
 		g.swagger.Paths.Paths[test.Path()] = item
 	}
 
-	return yaml.Marshal(g.s)
+	return yaml.Marshal(g.swagger)
 }
 
 func generateOperation(testCase ApiTestCase) (op spec.Operation, err error) {
