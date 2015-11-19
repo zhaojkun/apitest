@@ -34,38 +34,85 @@ func NewSwaggerYmlGenerator(seed spec.Swagger) IDocGenerator {
 // Generate implements IDocGenerator
 func (g *swaggerYmlGenerator) Generate(tests []IApiTest) ([]byte, error) {
 	for _, test := range tests {
-		item := g.swagger.Paths.Paths[test.Path()]
-		ops := map[string]spec.Operation{}
+		path := g.swagger.Paths.Paths[test.Path()] // TODO: 2 tests on the same API with the same response code conflict
+		op := spec.Operation{}
+		op.Responses = &spec.Responses{}
+		op.Responses.StatusCodeResponses = map[int]spec.Response{}
+
+		var description string
+		params := map[string]spec.Parameter{}
 		for _, testCase := range test.TestCases() {
-			// TODO: pregenerate and precollect operations and their parameters by some key first
-			operation, err := generateOperation(testCase)
-			if err != nil {
-				return nil, err
+			// parameter definitions are collected from 2xx tests only
+			if testCase.ExpectedHttpCode >= 200 && testCase.ExpectedHttpCode < 300 {
+				description = testCase.Description
+
+				for key, param := range testCase.QueryParams {
+					specParam, err := generateSpecParam(key, param, "query")
+					if err != nil {
+						return nil, err
+					}
+
+					params[specParam.Name+specParam.In] = specParam
+				}
+				for key, param := range testCase.Headers {
+					specParam, err := generateSpecParam(key, param, "header")
+					if err != nil {
+						return nil, err
+					}
+
+					params[specParam.Name+specParam.In] = specParam
+				}
+
+				if testCase.RequestBody != nil {
+					specParam := spec.Parameter{}
+					specParam.Name = "body"
+					specParam.In = "body"
+					specParam.Required = true
+					// TODO: schema generates incorrectly
+					specParam.Schema = generateSpecSchema(testCase.RequestBody)
+
+					params[specParam.Name+specParam.In] = specParam
+				}
 			}
 
-			ops[test.Method()] = operation
-		}
-
-		for method, op := range ops {
-			switch method {
-			case "GET":
-				item.Get = &op
-			case "POST":
-				item.Post = &op
-			case "PATCH":
-				item.Patch = &op
-			case "DELETE":
-				item.Delete = &op
-			case "PUT":
-				item.Put = &op
-			case "HEAD":
-				item.Head = &op
-			case "OPTIONS":
-				item.Options = &op
+			response := spec.Response{}
+			response.Description = testCase.Description
+			if testCase.ExpectedData != nil {
+				// TODO: extract reference to the schema, but put actual schema somewhere
+				response.Schema = generateSpecSchema(testCase.ExpectedData)
+				response.Examples = map[string]interface{}{
+					"application/json": testCase.ExpectedData,
+				}
 			}
+
+			op.Responses.StatusCodeResponses[testCase.ExpectedHttpCode] = response
 		}
 
-		g.swagger.Paths.Paths[test.Path()] = item
+		for _, param := range params {
+			op.Parameters = append(op.Parameters, param)
+		}
+		op.Summary = description
+
+		// TODO: check if path has already assigned an operation to some other test
+		// return error if so
+		switch test.Method() {
+		case "GET":
+			path.Get = &op
+		case "POST":
+			path.Post = &op
+		case "PATCH":
+			path.Patch = &op
+		case "DELETE":
+			path.Delete = &op
+		case "PUT":
+			path.Put = &op
+		case "HEAD":
+			path.Head = &op
+		case "OPTIONS":
+			path.Options = &op
+		}
+
+		g.swagger.Paths.Paths[test.Path()] = path
 	}
 
 	return yaml.Marshal(g.swagger)
@@ -128,9 +175,12 @@ func generateSpecParam(paramKey string, param ApiTestCaseParam, location string)
 	return specParam, nil
 }
 
-func generateSpecSchema(item interface{}) *spec.Schema {
-	schema := jsonschema.Reflect(item)
-	return specSchemaFromJsonSchema(schema.Type)
+func generateSpecSchema(item interface{}) (*spec.Schema, error) {
+	refl := jsonschema.Reflect(item)
+	schema := specSchemaFromJsonSchema(refl.Type)
+	schema.Example = item
+
+	return schema
 }
 
 func specSchemaFromJsonSchema(schema *jsonschema.Type) *spec.Schema {
