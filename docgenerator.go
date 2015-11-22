@@ -102,6 +102,7 @@ func (g *swaggerYmlGenerator) generateSwaggerOperation(test IApiTest, defs spec.
 				specParam.Name = "body"
 				specParam.In = "body"
 				specParam.Required = true
+				specParam.Default = testCase.RequestBody
 
 				specParam.Schema = generateSpecSchema(testCase.RequestBody, defs)
 
@@ -134,7 +135,8 @@ func generateSpecParam(paramKey string, param ApiTestCaseParam, location string)
 	specParam.Name = paramKey
 	specParam.In = location
 	specParam.Required = param.Required
-	specParam.Description = fmt.Sprintf("%v", param.Value)
+	specParam.Description = param.Description
+	specParam.Default = param.Value
 
 	paramType, err := generateSpecSimpleType(param.Value)
 	if err != nil {

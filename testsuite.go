@@ -39,8 +39,9 @@ type ApiTestCase struct {
 // ApiTestCaseParam defines a parameter that is used in headers or URL query
 // of the API request
 type ApiTestCaseParam struct {
-	Value    interface{}
-	Required bool
+	Value       interface{}
+	Required    bool
+	Description string
 }
 
 // Url generates full URL to API endpoint for given test case.
