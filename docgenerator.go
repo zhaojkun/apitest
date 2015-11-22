@@ -35,63 +35,10 @@ func NewSwaggerYmlGenerator(seed spec.Swagger) IDocGenerator {
 func (g *swaggerYmlGenerator) Generate(tests []IApiTest) ([]byte, error) {
 	for _, test := range tests {
 		path := g.swagger.Paths.Paths[test.Path()] // TODO: 2 tests on the same API with the same response code conflict
-		op := spec.Operation{}
-		op.Responses = &spec.Responses{}
-		op.Responses.StatusCodeResponses = map[int]spec.Response{}
-
-		var description string
-		params := map[string]spec.Parameter{}
-		for _, testCase := range test.TestCases() {
-			// parameter definitions are collected from 2xx tests only
-			if testCase.ExpectedHttpCode >= 200 && testCase.ExpectedHttpCode < 300 {
-				description = testCase.Description
-
-				for key, param := range testCase.QueryParams {
-					specParam, err := generateSpecParam(key, param, "query")
-					if err != nil {
-						return nil, err
-					}
-
-					params[specParam.Name+specParam.In] = specParam
-				}
-				for key, param := range testCase.Headers {
-					specParam, err := generateSpecParam(key, param, "header")
-					if err != nil {
-						return nil, err
-					}
-
-					params[specParam.Name+specParam.In] = specParam
-				}
-
-				if testCase.RequestBody != nil {
-					specParam := spec.Parameter{}
-					specParam.Name = "body"
-					specParam.In = "body"
-					specParam.Required = true
-					// TODO: schema generates incorrectly
-					specParam.Schema = generateSpecSchema(testCase.RequestBody)
-
-					params[specParam.Name+specParam.In] = specParam
-				}
-			}
-
-			response := spec.Response{}
-			response.Description = testCase.Description
-			if testCase.ExpectedData != nil {
-				// TODO: extract reference to the schema, but put actual schema somewhere
-				response.Schema = generateSpecSchema(testCase.ExpectedData)
-				response.Examples = map[string]interface{}{
-					"application/json": testCase.ExpectedData,
-				}
-			}
-
-			op.Responses.StatusCodeResponses[testCase.ExpectedHttpCode] = response
+		op, err := g.generateSwaggerOperation(test)
+		if err != nil {
+			return nil, err
 		}
-
-		for _, param := range params {
-			op.Parameters = append(op.Parameters, param)
-		}
-		op.Summary = description
 
 		// TODO: check if path has already assigned an operation to some other test
 		// return error if so
@@ -118,44 +65,66 @@ func (g *swaggerYmlGenerator) Generate(tests []IApiTest) ([]byte, error) {
 	return yaml.Marshal(g.swagger)
 }
 
-func generateOperation(testCase ApiTestCase) (op spec.Operation, err error) {
-	op.Description = testCase.Description
+func (g *swaggerYmlGenerator) generateSwaggerOperation(test IApiTest) (spec.Operation, error) {
 
-	// generate parameters from Query Params
-	for key, param := range testCase.QueryParams {
-		specParam, err := generateSpecParam(key, param, "query")
-		if err != nil {
-			return op, err
+	op := spec.Operation{}
+	op.Responses = &spec.Responses{}
+	op.Responses.StatusCodeResponses = map[int]spec.Response{}
+
+	var description string
+	params := map[string]spec.Parameter{}
+	for _, testCase := range test.TestCases() {
+		// parameter definitions are collected from 2xx tests only
+		if testCase.ExpectedHttpCode >= 200 && testCase.ExpectedHttpCode < 300 {
+			description = testCase.Description
+
+			for key, param := range testCase.QueryParams {
+				specParam, err := generateSpecParam(key, param, "query")
+				if err != nil {
+					return op, err
+				}
+
+				params[specParam.Name+specParam.In] = specParam
+			}
+
+			for key, param := range testCase.Headers {
+				specParam, err := generateSpecParam(key, param, "header")
+				if err != nil {
+					return op, err
+				}
+
+				params[specParam.Name+specParam.In] = specParam
+			}
+
+			if testCase.RequestBody != nil {
+				specParam := spec.Parameter{}
+				specParam.Name = "body"
+				specParam.In = "body"
+				specParam.Required = true
+
+				specParam.Schema = generateSpecSchema(testCase.RequestBody)
+
+				params[specParam.Name+specParam.In] = specParam
+			}
 		}
-		op.Parameters = append(op.Parameters, specParam)
-	}
 
-	// generate parameters from Headers
-	for key, param := range testCase.Headers {
-		specParam, err := generateSpecParam(key, param, "header")
-		if err != nil {
-			return op, err
+		response := spec.Response{}
+		response.Description = testCase.Description
+		if testCase.ExpectedData != nil {
+			response.Schema = generateSpecSchema(testCase.ExpectedData)
+			response.Examples = map[string]interface{}{
+				"application/json": testCase.ExpectedData,
+			}
 		}
-		op.Parameters = append(op.Parameters, specParam)
+
+		op.Responses.StatusCodeResponses[testCase.ExpectedHttpCode] = response
 	}
 
-	// TODO: implement PATH parameters
-	// for param := range testCase.PathParams {
-	// 	specParam, err := generateSpecParam(param, "path")
-	// 	if err != nil {
-	// 		return op, err
-	// 	}
-	// 	op.Parameters = append(op.Parameters, specParam)
-	// }
-	if testCase.RequestBody != nil {
-		specParam := spec.Parameter{}
-		specParam.Name = "body"
-		specParam.In = "body"
-		specParam.Required = true
-		specParam.Schema = generateSpecSchema(testCase.RequestBody)
-
-		op.Parameters = append(op.Parameters, specParam)
+	for _, param := range params {
+		op.Parameters = append(op.Parameters, param)
 	}
+	op.Summary = description
+
 	return op, nil
 }
 
@@ -175,15 +144,19 @@ func generateSpecParam(paramKey string, param ApiTestCaseParam, location string)
 	return specParam, nil
 }
 
-func generateSpecSchema(item interface{}) (*spec.Schema, error) {
+func generateSpecSchema(item interface{}) *spec.Schema {
 	refl := jsonschema.Reflect(item)
-	schema := specSchemaFromJsonSchema(refl.Type)
-	schema.Example = item
+	schema := specSchemaFromJsonType(refl.Type)
+
+	schema.Definitions = map[string]spec.Schema{}
+	for name, def := range refl.Definitions {
+		schema.Definitions[name] = *specSchemaFromJsonType(def)
+	}
 
 	return schema
 }
 
-func specSchemaFromJsonSchema(schema *jsonschema.Type) *spec.Schema {
+func specSchemaFromJsonType(schema *jsonschema.Type) *spec.Schema {
 	s := &spec.Schema{}
 	s.Type = []string{schema.Type}
 	s.Format = schema.Format
@@ -201,20 +174,20 @@ func specSchemaFromJsonSchema(schema *jsonschema.Type) *spec.Schema {
 
 	if schema.Items != nil {
 		s.Items = &spec.SchemaOrArray{}
-		s.Items.Schema = specSchemaFromJsonSchema(schema.Items)
+		s.Items.Schema = specSchemaFromJsonType(schema.Items)
 	}
 
 	if schema.Properties != nil {
 		s.Properties = make(map[string]spec.Schema)
 		for key, prop := range schema.Properties {
-			s.Properties[key] = *specSchemaFromJsonSchema(prop)
+			s.Properties[key] = *specSchemaFromJsonType(prop)
 		}
 	}
 
 	if schema.PatternProperties != nil {
 		s.PatternProperties = make(map[string]spec.Schema)
 		for key, prop := range schema.PatternProperties {
-			s.PatternProperties[key] = *specSchemaFromJsonSchema(prop)
+			s.PatternProperties[key] = *specSchemaFromJsonType(prop)
 		}
 	}
 
@@ -224,6 +197,8 @@ func specSchemaFromJsonSchema(schema *jsonschema.Type) *spec.Schema {
 	case "false":
 		s.AdditionalProperties = &spec.SchemaOrBool{Allows: false}
 	}
+
+	s.Ref = spec.MustCreateRef(schema.Ref)
 
 	return s
 }
