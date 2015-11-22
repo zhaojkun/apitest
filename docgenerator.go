@@ -25,7 +25,6 @@ func NewSwaggerYmlGenerator(seed spec.Swagger) IDocGenerator {
 		swagger: seed,
 	}
 	gen.swagger.Swagger = "2.0" // from swagger doc: 'The value MUST be "2.0"'
-	gen.swagger.Info = &spec.Info{}
 	gen.swagger.Paths = &spec.Paths{Paths: map[string]spec.PathItem{}}
 
 	return gen
@@ -33,9 +32,11 @@ func NewSwaggerYmlGenerator(seed spec.Swagger) IDocGenerator {
 
 // Generate implements IDocGenerator
 func (g *swaggerYmlGenerator) Generate(tests []IApiTest) ([]byte, error) {
+	g.swagger.Definitions = spec.Definitions{}
+
 	for _, test := range tests {
 		path := g.swagger.Paths.Paths[test.Path()] // TODO: 2 tests on the same API with the same response code conflict
-		op, err := g.generateSwaggerOperation(test)
+		op, err := g.generateSwaggerOperation(test, g.swagger.Definitions)
 		if err != nil {
 			return nil, err
 		}
@@ -65,7 +66,7 @@ func (g *swaggerYmlGenerator) Generate(tests []IApiTest) ([]byte, error) {
 	return yaml.Marshal(g.swagger)
 }
 
-func (g *swaggerYmlGenerator) generateSwaggerOperation(test IApiTest) (spec.Operation, error) {
+func (g *swaggerYmlGenerator) generateSwaggerOperation(test IApiTest, defs spec.Definitions) (spec.Operation, error) {
 
 	op := spec.Operation{}
 	op.Responses = &spec.Responses{}
@@ -102,7 +103,7 @@ func (g *swaggerYmlGenerator) generateSwaggerOperation(test IApiTest) (spec.Oper
 				specParam.In = "body"
 				specParam.Required = true
 
-				specParam.Schema = generateSpecSchema(testCase.RequestBody)
+				specParam.Schema = generateSpecSchema(testCase.RequestBody, defs)
 
 				params[specParam.Name+specParam.In] = specParam
 			}
@@ -111,7 +112,7 @@ func (g *swaggerYmlGenerator) generateSwaggerOperation(test IApiTest) (spec.Oper
 		response := spec.Response{}
 		response.Description = testCase.Description
 		if testCase.ExpectedData != nil {
-			response.Schema = generateSpecSchema(testCase.ExpectedData)
+			response.Schema = generateSpecSchema(testCase.ExpectedData, defs)
 			response.Examples = map[string]interface{}{
 				"application/json": testCase.ExpectedData,
 			}
@@ -124,7 +125,7 @@ func (g *swaggerYmlGenerator) generateSwaggerOperation(test IApiTest) (spec.Oper
 		op.Parameters = append(op.Parameters, param)
 	}
 	op.Summary = description
-
+	op.Tags = []string{test.Tag()}
 	return op, nil
 }
 
@@ -144,13 +145,13 @@ func generateSpecParam(paramKey string, param ApiTestCaseParam, location string)
 	return specParam, nil
 }
 
-func generateSpecSchema(item interface{}) *spec.Schema {
+func generateSpecSchema(item interface{}, defs spec.Definitions) *spec.Schema {
 	refl := jsonschema.Reflect(item)
 	schema := specSchemaFromJsonType(refl.Type)
 
 	schema.Definitions = map[string]spec.Schema{}
 	for name, def := range refl.Definitions {
-		schema.Definitions[name] = *specSchemaFromJsonType(def)
+		defs[name] = *specSchemaFromJsonType(def)
 	}
 
 	return schema
@@ -158,7 +159,13 @@ func generateSpecSchema(item interface{}) *spec.Schema {
 
 func specSchemaFromJsonType(schema *jsonschema.Type) *spec.Schema {
 	s := &spec.Schema{}
-	s.Type = []string{schema.Type}
+	if schema.Type != "" {
+		s.Type = []string{schema.Type}
+	}
+	if schema.Ref != "" {
+		s.Ref = spec.MustCreateRef(schema.Ref)
+	}
+
 	s.Format = schema.Format
 	s.Required = schema.Required
 
@@ -197,8 +204,6 @@ func specSchemaFromJsonType(schema *jsonschema.Type) *spec.Schema {
 	case "false":
 		s.AdditionalProperties = &spec.SchemaOrBool{Allows: false}
 	}
-
-	s.Ref = spec.MustCreateRef(schema.Ref)
 
 	return s
 }

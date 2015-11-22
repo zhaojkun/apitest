@@ -13,6 +13,7 @@ type IApiTest interface {
 	Method() string
 	Description() string
 	Path() string
+	Tag() string
 	TestCases() []ApiTestCase
 }
 
