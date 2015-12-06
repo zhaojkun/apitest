@@ -8,6 +8,13 @@ import (
 	"github.com/go-swagger/go-swagger/spec"
 )
 
+// ITaggable is an interface that can tell doc generator
+// that some test provides a tag. Usable for swagger documentation
+// where tags help to group API endpoints
+type ITaggable interface {
+	Tag() string
+}
+
 // IDocGenerator describes a generator of documentation
 // uses test suite as a source of information about API endpoints
 type IDocGenerator interface {
@@ -87,6 +94,14 @@ func (g *swaggerYmlGenerator) generateSwaggerOperation(test IApiTest, defs spec.
 
 				params[specParam.Name+specParam.In] = specParam
 			}
+			for key, param := range testCase.PathParams {
+				specParam, err := generateSpecParam(key, param, "path")
+				if err != nil {
+					return op, err
+				}
+
+				params[specParam.Name+specParam.In] = specParam
+			}
 
 			for key, param := range testCase.Headers {
 				specParam, err := generateSpecParam(key, param, "header")
@@ -126,11 +141,14 @@ func (g *swaggerYmlGenerator) generateSwaggerOperation(test IApiTest, defs spec.
 		op.Parameters = append(op.Parameters, param)
 	}
 	op.Summary = description
-	op.Tags = []string{test.Tag()}
+	if taggable, ok := test.(ITaggable); ok {
+		op.Tags = []string{taggable.Tag()}
+	}
+
 	return op, nil
 }
 
-func generateSpecParam(paramKey string, param ApiTestCaseParam, location string) (spec.Parameter, error) {
+func generateSpecParam(paramKey string, param Param, location string) (spec.Parameter, error) {
 	specParam := spec.Parameter{}
 	specParam.Name = paramKey
 	specParam.In = location

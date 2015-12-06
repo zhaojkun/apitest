@@ -3,6 +3,8 @@ package testilla
 import (
 	"fmt"
 	"net/url"
+
+	"github.com/jingweno/go-sawyer/hypermedia"
 )
 
 // IApiTest defines an interface of API test definition.
@@ -13,7 +15,6 @@ type IApiTest interface {
 	Method() string
 	Description() string
 	Path() string
-	Tag() string
 	TestCases() []ApiTestCase
 }
 
@@ -27,8 +28,9 @@ type IApiTest interface {
 type ApiTestCase struct {
 	Description string
 
-	Headers     map[string]ApiTestCaseParam
-	QueryParams map[string]ApiTestCaseParam
+	Headers     ParamMap
+	QueryParams ParamMap
+	PathParams  ParamMap
 	RequestBody interface{}
 
 	ExpectedHttpCode int
@@ -36,10 +38,22 @@ type ApiTestCase struct {
 	ExpectedData     interface{}
 }
 
-// ApiTestCaseParam defines a parameter that is used in headers or URL query
+type ParamMap map[string]Param
+
+// Param defines a parameter that is used in headers or URL query
 // of the API request
-type ApiTestCaseParam struct {
+type Param struct {
 	Value       interface{}
+	Required    bool
+	Description string
+}
+
+type ParamStringMap map[string]ParamString
+
+// Param defines a parameter that is used in headers or URL query
+// of the API request
+type ParamString struct {
+	Value       string
 	Required    bool
 	Description string
 }
@@ -47,7 +61,14 @@ type ApiTestCaseParam struct {
 // Url generates full URL to API endpoint for given test case.
 // urlpath must provide full URL to the endpoint with no query parameters.
 func (testCase *ApiTestCase) Url(urlpath string) (string, error) {
-	u, err := url.Parse(urlpath)
+	// TODO: what if url template contains something, but it's not provided by test case?
+	sawyerHyperlink := hypermedia.Hyperlink(urlpath)
+	params := hypermedia.M{}
+	for name, p := range testCase.PathParams {
+		params[name] = p.Value
+	}
+
+	u, err := sawyerHyperlink.Expand(params)
 	if err != nil {
 		return "", err
 	}
