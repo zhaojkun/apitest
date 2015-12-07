@@ -62,8 +62,9 @@ func (r *basicRunner) runTest(testCase ApiTestCase, method, path string) error {
 		}
 	}
 
-	if err := f.Send().Error(); err != nil {
-		return err
+	f.Send()
+	if len(f.Errors()) > 0 {
+		return f.Error()
 	}
 
 	// TODO: replace frisby with some basic HTTP client
@@ -78,8 +79,8 @@ func (r *basicRunner) runTest(testCase ApiTestCase, method, path string) error {
 		}
 	}
 
-	if err := f.Error(); err != nil {
-		return err
+	if len(f.Errors()) > 0 {
+		return f.Error()
 	}
 
 	// asserting body
@@ -89,6 +90,7 @@ func (r *basicRunner) runTest(testCase ApiTestCase, method, path string) error {
 	}
 
 	if testCase.ExpectedData != nil {
+		// TODO 1: if expected string, do not convert it to JSON
 		expectedData, err := objToJsonMap(testCase.ExpectedData)
 		if err != nil {
 			return fmt.Errorf("could not convert expected data to json map, '%s'", err.Error())
