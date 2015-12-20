@@ -30,12 +30,14 @@ func NewRunner(baseUrl string) *basicRunner {
 }
 
 func (r *basicRunner) Run(tests []IApiTest, t *testing.T) {
-	for testIndex, test := range tests {
+	for _, test := range tests {
 		for caseIndex, testCase := range test.TestCases() {
 
 			err := r.runTest(testCase, test.Method(), test.Path())
 			if err != nil {
-				t.Errorf("error running test %d, case %d: %s", testIndex, caseIndex, err.Error())
+				testName := extractTestName(test)
+				t.Errorf("error running test '%s'(%s), case %d: %s",
+					testName, testCase.Description, caseIndex, err.Error())
 			}
 		}
 	}
@@ -51,6 +53,8 @@ func (r *basicRunner) runTest(testCase ApiTestCase, method, path string) error {
 	f := frisby.Create("")
 	f.Method = method
 	f.Url = url
+	f.SetHeaders(r.DefaultHeaders)
+
 	if testCase.RequestBody != nil {
 		f.SetJson(testCase.RequestBody)
 	}
@@ -114,6 +118,10 @@ func (r *basicRunner) runTest(testCase ApiTestCase, method, path string) error {
 	}
 
 	return nil
+}
+
+func extractTestName(value interface{}) string {
+	return reflect.TypeOf(value).Name()
 }
 
 func objToJsonMap(obj interface{}) (map[string]interface{}, error) {
