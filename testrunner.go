@@ -31,13 +31,36 @@ func NewRunner(baseUrl string) *basicRunner {
 
 func (r *basicRunner) Run(tests []IApiTest, t *testing.T) {
 	for _, test := range tests {
+		testName := extractTestName(test)
+		// setup test
+		if setuppable, ok := test.(ISetuppable); ok {
+			t.Logf("setting up test '%s'(%s)...", testName, test.Description())
+
+			if err := setuppable.SetUp(); err != nil {
+				t.Errorf("error setting up test '%s'(%s): %s",
+					testName, test.Description(), err.Error())
+
+				continue
+			}
+		}
+
+		// run test
 		for caseIndex, testCase := range test.TestCases() {
 
 			err := r.runTest(testCase, test.Method(), test.Path())
 			if err != nil {
-				testName := extractTestName(test)
 				t.Errorf("error running test '%s'(%s), case %d: %s",
-					testName, testCase.Description, caseIndex, err.Error())
+					testName, test.Description(), caseIndex, err.Error())
+			}
+		}
+
+		// teardown test
+		if teardownable, ok := test.(ITeardownable); ok {
+			t.Logf("tearing down test '%s'(%s)...", testName, test.Description())
+
+			if err := teardownable.TearDown(); err != nil {
+				t.Errorf("error cleaning up after a test '%s'(%s): %s",
+					testName, test.Description(), err.Error())
 			}
 		}
 	}

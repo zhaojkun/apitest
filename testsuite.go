@@ -18,6 +18,20 @@ type IApiTest interface {
 	TestCases() []ApiTestCase
 }
 
+// ISetuppable defines interface for tests that have setup logic
+//
+// If you need to run some preparation logic - this is the right place to do
+type ISetuppable interface {
+	SetUp() error
+}
+
+// ITeardownable defines interface for tests that have teardown logic
+//
+// Good place to put some cleanup logic if you need to
+type ITeardownable interface {
+	TearDown() error
+}
+
 // ApiTestCase provides use case of some API endpoint: input and expected output.
 //
 // Test case knows nothing about API endpoint itself. Path of an API endpoint and
