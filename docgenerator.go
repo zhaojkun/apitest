@@ -3,6 +3,7 @@ package testilla
 import (
 	"fmt"
 
+    "encoding/json"
 	"github.com/alecthomas/jsonschema"
 	"github.com/ghodss/yaml"
 	"github.com/go-swagger/go-swagger/spec"
@@ -117,7 +118,11 @@ func (g *swaggerYmlGenerator) generateSwaggerOperation(test IApiTest, defs spec.
 				specParam.Name = "body"
 				specParam.In = "body"
 				specParam.Required = true
-				specParam.Default = testCase.RequestBody
+
+                specParam.Default = testCase.RequestBody
+                if content, err := json.MarshalIndent(testCase.RequestBody, "", "  "); err == nil {
+                    specParam.Default = string(content)
+                }
 
 				specParam.Schema = generateSpecSchema(testCase.RequestBody, defs)
 
