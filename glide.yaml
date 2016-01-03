@@ -1,0 +1,17 @@
+package: github.com/seesawlabs/testilla
+import:
+- package: github.com/alecthomas/jsonschema
+- package: github.com/ghodss/yaml
+- package: github.com/go-swagger/go-swagger
+  subpackages:
+  - /spec
+- package: github.com/jingweno/go-sawyer
+  subpackages:
+  - /hypermedia
+- package: github.com/labstack/echo
+  subpackages:
+  - middleware
+- package: github.com/octokit/go-octokit
+  subpackages:
+  - /octokit
+- package: github.com/verdverm/frisby

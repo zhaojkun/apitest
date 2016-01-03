@@ -3,7 +3,7 @@ package testilla
 import (
 	"fmt"
 
-	"github.com/elgris/jsonschema"
+	"github.com/alecthomas/jsonschema"
 	"github.com/ghodss/yaml"
 	"github.com/go-swagger/go-swagger/spec"
 )
