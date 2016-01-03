@@ -144,7 +144,7 @@ func (r *basicRunner) runTest(testCase ApiTestCase, method, path string) error {
 }
 
 func extractTestName(value interface{}) string {
-	return reflect.TypeOf(value).Name()
+	return reflect.TypeOf(value).String()
 }
 
 func objToJsonMap(obj interface{}) (map[string]interface{}, error) {
