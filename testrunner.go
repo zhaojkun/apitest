@@ -69,6 +69,7 @@ func (r *basicRunner) Run(tests []IApiTest, t *testing.T) {
 func (r *basicRunner) runTest(testCase ApiTestCase, method, path string) error {
 	urlstring := r.BaseUrl + path
 	url, err := testCase.Url(urlstring)
+
 	if err != nil {
 		return fmt.Errorf("could not prepare an url, '%s'", err.Error())
 	}
@@ -117,20 +118,12 @@ func (r *basicRunner) runTest(testCase ApiTestCase, method, path string) error {
 	}
 
 	if testCase.ExpectedData != nil {
-		// TODO 1: if expected string, do not convert it to JSON
-		expectedData, err := objToJsonMap(testCase.ExpectedData)
-		if err != nil {
-			return fmt.Errorf("could not convert expected data to json map, '%s'", err.Error())
-		}
+		expectedData := decodeExpected(testCase.ExpectedData)
+		actualData := decodeResponse(content)
 
-		responseBody := map[string]interface{}{}
-		if err := json.Unmarshal(content, &responseBody); err != nil {
-			return err
-		}
-
-		if !reflect.DeepEqual(expectedData, responseBody) {
+		if !reflect.DeepEqual(expectedData, actualData) {
 			expectedJson, _ := json.MarshalIndent(expectedData, "", "    ")
-			actualJson, _ := json.MarshalIndent(responseBody, "", "    ")
+			actualJson, _ := json.MarshalIndent(actualData, "", "    ")
 			return fmt.Errorf("request and response are not equal.\nExpected: %s\nGot: %s", expectedJson, actualJson)
 		}
 	} else {
@@ -141,6 +134,26 @@ func (r *basicRunner) runTest(testCase ApiTestCase, method, path string) error {
 	}
 
 	return nil
+}
+
+// decodeExpected processes expected data into representation used for comparison to actual data
+// (converts object to map, does some type conversion)
+func decodeExpected(data interface{}) interface{} {
+	if decoded, err := objToJsonMap(data); err == nil {
+		return decoded
+	}
+
+	return data
+}
+
+// decodeResponse processes response data into representation used for comparison to expected data
+func decodeResponse(data []byte) interface{} {
+	var dataMap map[string]interface{}
+	if err := json.Unmarshal(data, &dataMap); err == nil {
+		return dataMap
+	}
+
+	return data
 }
 
 func extractTestName(value interface{}) string {

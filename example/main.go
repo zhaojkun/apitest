@@ -24,7 +24,7 @@ func main() {
 }
 
 func hello(c *echo.Context) error {
-	return c.String(http.StatusOK, "Hello, World!\n")
+	return c.String(http.StatusOK, "Hello World!\n")
 }
 
 func getUser(c *echo.Context) error {
@@ -35,7 +35,7 @@ func getUser(c *echo.Context) error {
 
 	user, found, err := fetchUserFromGithub(username)
 	if err != nil {
-		return err
+		return c.String(http.StatusInternalServerError, err.Error())
 	} else if !found {
 		return c.String(http.StatusNotFound, "user %s not found", username)
 	}
