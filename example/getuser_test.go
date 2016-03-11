@@ -1,8 +1,6 @@
 package main
 
 import (
-	"time"
-
 	"github.com/octokit/go-octokit/octokit"
 
 	"github.com/seesawlabs/apitest"
@@ -17,42 +15,34 @@ func (t *GetUserTest) Description() string { return "Test for GetUser API handle
 func (t *GetUserTest) Path() string        { return "user/{username}" }
 
 func (t *GetUserTest) TestCases() []apitest.ApiTestCase {
-	elgrisCreatedAt := time.Date(2012, time.June, 29, 11, 57, 38, 0, time.UTC)
-	elgrisUpdatedAt := time.Date(2015, time.December, 27, 19, 33, 41, 0, time.UTC)
-
 	return []apitest.ApiTestCase{
 		{
 			Description: "Successful getting of user details",
 			PathParams: apitest.ParamMap{
-				"username": apitest.Param{Value: "elgris"},
+				"username": apitest.Param{Value: "octocat"},
 			},
 
 			ExpectedHttpCode: 200,
 			ExpectedData: octokit.User{
-				AvatarURL:         "https://avatars.githubusercontent.com/u/1905821?v=3",
-				Blog:              "http://elgris-blog.blogspot.com/",
-				CreatedAt:         &elgrisCreatedAt,
-				UpdatedAt:         &elgrisUpdatedAt,
-				EventsURL:         "https://api.github.com/users/elgris/events{/privacy}",
-				Followers:         10,
-				FollowersURL:      "https://api.github.com/users/elgris/followers",
-				Following:         3,
-				FollowingURL:      "https://api.github.com/users/elgris/following{/other_user}",
-				GistsURL:          "https://api.github.com/users/elgris/gists{/gist_id}",
-				Hireable:          true,
-				HTMLURL:           "https://github.com/elgris",
-				ID:                1905821,
-				Location:          "Saint Petersburg, Russia",
-				Login:             "elgris",
-				Name:              "elgris",
-				OrganizationsURL:  "https://api.github.com/users/elgris/orgs",
-				PublicRepos:       24,
-				ReceivedEventsURL: "https://api.github.com/users/elgris/received_events",
-				ReposURL:          "https://api.github.com/users/elgris/repos",
-				StarredURL:        "https://api.github.com/users/elgris/starred{/owner}{/repo}",
-				SubscriptionsURL:  "https://api.github.com/users/elgris/subscriptions",
+				EventsURL:         "https://api.github.com/users/octocat/events{/privacy}",
+				Followers:         20,
+				FollowersURL:      "https://api.github.com/users/octocat/followers",
+				Following:         0,
+				FollowingURL:      "https://api.github.com/users/octocat/following{/other_user}",
+				GistsURL:          "https://api.github.com/users/octocat/gists{/gist_id}",
+				Hireable:          false,
+				HTMLURL:           "https://github.com/octocat",
+				Location:          "San Francisco",
+				Login:             "octocat",
+				Name:              "monalisa octocat",
+				OrganizationsURL:  "https://api.github.com/users/octocat/orgs",
+				PublicRepos:       2,
+				ReceivedEventsURL: "https://api.github.com/users/octocat/received_events",
+				ReposURL:          "https://api.github.com/users/octocat/repos",
+				StarredURL:        "https://api.github.com/users/octocat/starred{/owner}{/repo}",
+				SubscriptionsURL:  "https://api.github.com/users/octocat/subscriptions",
 				Type:              "User",
-				URL:               "https://api.github.com/users/elgris",
+				URL:               "https://api.github.com/users/octocat",
 			},
 		},
 		{

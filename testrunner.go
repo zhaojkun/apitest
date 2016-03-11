@@ -1,12 +1,15 @@
 package apitest
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"net/http"
 	"reflect"
 	"testing"
 
-	"github.com/verdverm/frisby"
+	"github.com/stretchr/testify/assert"
 )
 
 // ITestRunner is responsible for
@@ -29,7 +32,7 @@ func NewRunner(baseUrl string) *basicRunner {
 	}
 }
 
-func (r *basicRunner) Run(tests []IApiTest, t *testing.T) {
+func (r *basicRunner) Run(t *testing.T, tests ...IApiTest) {
 	for _, test := range tests {
 		testName := extractTestName(test)
 		// setup test
@@ -46,12 +49,8 @@ func (r *basicRunner) Run(tests []IApiTest, t *testing.T) {
 
 		// run test
 		for caseIndex, testCase := range test.TestCases() {
-
-			err := r.runTest(testCase, test.Method(), test.Path())
-			if err != nil {
-				t.Errorf("error running test '%s'(%s), case %d: %s",
-					testName, test.Description(), caseIndex, err.Error())
-			}
+			t.Logf("running test '%s'(%s), case %d", testName, test.Description(), caseIndex)
+			r.runTest(t, testCase, test.Method(), test.Path())
 		}
 
 		// teardown test
@@ -66,74 +65,90 @@ func (r *basicRunner) Run(tests []IApiTest, t *testing.T) {
 	}
 }
 
-func (r *basicRunner) runTest(testCase ApiTestCase, method, path string) error {
+func (r *basicRunner) encode(obj interface{}) ([]byte, error) {
+	return json.Marshal(obj)
+}
+
+func (r *basicRunner) runTest(t *testing.T, testCase ApiTestCase, method, path string) {
 	urlstring := r.BaseUrl + path
 	url, err := testCase.Url(urlstring)
-
-	if err != nil {
-		return fmt.Errorf("could not prepare an url, '%s'", err.Error())
+	if !assert.NoError(t, err, "could not prepare an url") {
+		return
 	}
 
-	f := frisby.Create("")
-	f.Method = method
-	f.Url = url
-	f.SetHeaders(r.DefaultHeaders)
-
+	// TODO: prepare body
+	var req *http.Request
 	if testCase.RequestBody != nil {
-		f.SetJson(testCase.RequestBody)
+		encoded, err := r.encode(testCase.RequestBody)
+		if !assert.NoError(t, err, "could not encode body") {
+			return
+		}
+
+		requestBody := bytes.NewBuffer(encoded)
+		req, err = http.NewRequest(method, url, requestBody)
+	} else {
+		req, err = http.NewRequest(method, url, nil)
+	}
+
+	if !assert.NoError(t, err, "could not create HTTP request") {
+		return
+	}
+
+	// TODO: set headers
+	for name, value := range r.DefaultHeaders {
+		req.Header.Set(name, value)
 	}
 	for name, param := range testCase.Headers {
 		if stringValue, ok := param.Value.(string); ok {
-			f.SetHeader(name, stringValue)
+			req.Header.Set(name, stringValue)
 		} else {
-			f.SetHeader(name, fmt.Sprintf("%v", param.Value))
+			req.Header.Set(name, fmt.Sprintf("%v", param.Value))
 		}
 	}
 
-	f.Send()
-	if len(f.Errors()) > 0 {
-		return f.Error()
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if !assert.NoError(t, err, "failed sending a request") {
+		return
 	}
 
-	// TODO: replace frisby with some basic HTTP client
-	// asserting response code
-	f.ExpectStatus(testCase.ExpectedHttpCode)
+	if !assert.NotNil(t, resp, "request to '%s' returned nil response", urlstring) {
+		return
+	}
+
+	if !assert.Equal(t, testCase.ExpectedHttpCode, resp.StatusCode) {
+		return
+	}
 
 	// asserting headers
 	if testCase.ExpectedHeaders != nil {
 		for header, value := range testCase.ExpectedHeaders {
-
-			f.ExpectHeader(header, value)
+			if !assert.Equal(t, value, resp.Header.Get(header)) {
+				return
+			}
 		}
 	}
 
-	if len(f.Errors()) > 0 {
-		return f.Error()
-	}
+	var responseBody []byte
+	if resp.Body != nil {
+		defer resp.Body.Close()
 
-	// asserting body
-	content, err := f.Resp.Content()
-	if err != nil {
-		return err
+		responseBody, err = ioutil.ReadAll(resp.Body)
+		if !assert.NoError(t, err) {
+			return
+		}
 	}
 
 	if testCase.ExpectedData != nil {
 		expectedData := decodeExpected(testCase.ExpectedData)
-		actualData := decodeResponse(content)
+		actualData := decodeResponse(responseBody)
 
-		if !reflect.DeepEqual(expectedData, actualData) {
-			expectedJson, _ := json.MarshalIndent(expectedData, "", "    ")
-			actualJson, _ := json.MarshalIndent(actualData, "", "    ")
-			return fmt.Errorf("request and response are not equal.\nExpected: %s\nGot: %s", expectedJson, actualJson)
+		if !assert.Equal(t, actualData, expectedData, "request and response are not equal") {
+			return
 		}
-	} else {
-		if len(content) > 0 {
-			return fmt.Errorf("expected empty response, got: %s", string(content))
-
-		}
+	} else if !assert.Empty(t, responseBody, "expected empty response") {
+		return
 	}
-
-	return nil
 }
 
 // decodeExpected processes expected data into representation used for comparison to actual data

@@ -12,7 +12,7 @@ func (t *HelloTest) TestCases() []apitest.ApiTestCase {
 	return []apitest.ApiTestCase{
 		{
 			ExpectedHttpCode: 200,
-			ExpectedData:     []byte("Hello World!\n"),
+			ExpectedData:     []byte("Hello World!"),
 		},
 	}
 }

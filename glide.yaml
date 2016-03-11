@@ -14,4 +14,4 @@ import:
 - package: github.com/octokit/go-octokit
   subpackages:
   - /octokit
-- package: github.com/verdverm/frisby
+- package: github.com/jarcoal/httpmock
