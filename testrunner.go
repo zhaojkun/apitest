@@ -1,4 +1,4 @@
-package testilla
+package apitest
 
 import (
 	"encoding/json"

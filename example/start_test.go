@@ -4,16 +4,16 @@ import (
 	"testing"
 
 	"github.com/go-swagger/go-swagger/spec"
-	"github.com/seesawlabs/testilla"
+	"github.com/seesawlabs/apitest"
 )
 
 func TestApi(t *testing.T) {
-	tests := []testilla.IApiTest{
+	tests := []apitest.IApiTest{
 		&HelloTest{},
 		&GetUserTest{},
 	}
 
-	runner := testilla.NewRunner("http://127.0.0.1:1323/")
+	runner := apitest.NewRunner("http://127.0.0.1:1323/")
 	runner.Run(tests, t)
 
 	if !t.Failed() {
@@ -28,7 +28,7 @@ func TestApi(t *testing.T) {
 		seed.Info.Version = "0.1"
 		seed.BasePath = "/"
 
-		generator := testilla.NewSwaggerYmlGenerator(seed)
+		generator := apitest.NewSwaggerYmlGenerator(seed)
 
 		doc, err := generator.Generate(tests)
 		if err != nil {

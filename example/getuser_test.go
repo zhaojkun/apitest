@@ -5,7 +5,7 @@ import (
 
 	"github.com/octokit/go-octokit/octokit"
 
-	"github.com/seesawlabs/testilla"
+	"github.com/seesawlabs/apitest"
 )
 
 // TODO: mock Github API call
@@ -16,15 +16,15 @@ func (t *GetUserTest) Method() string      { return "GET" }
 func (t *GetUserTest) Description() string { return "Test for GetUser API handler" }
 func (t *GetUserTest) Path() string        { return "user/{username}" }
 
-func (t *GetUserTest) TestCases() []testilla.ApiTestCase {
+func (t *GetUserTest) TestCases() []apitest.ApiTestCase {
 	elgrisCreatedAt := time.Date(2012, time.June, 29, 11, 57, 38, 0, time.UTC)
 	elgrisUpdatedAt := time.Date(2015, time.December, 27, 19, 33, 41, 0, time.UTC)
 
-	return []testilla.ApiTestCase{
+	return []apitest.ApiTestCase{
 		{
 			Description: "Successful getting of user details",
-			PathParams: testilla.ParamMap{
-				"username": testilla.Param{Value: "elgris"},
+			PathParams: apitest.ParamMap{
+				"username": apitest.Param{Value: "elgris"},
 			},
 
 			ExpectedHttpCode: 200,
@@ -57,8 +57,8 @@ func (t *GetUserTest) TestCases() []testilla.ApiTestCase {
 		},
 		{
 			Description: "404 error in case user not found",
-			PathParams: testilla.ParamMap{
-				"username": testilla.Param{Value: "someveryunknown"},
+			PathParams: apitest.ParamMap{
+				"username": apitest.Param{Value: "someveryunknown"},
 			},
 
 			ExpectedHttpCode: 404,
@@ -66,8 +66,8 @@ func (t *GetUserTest) TestCases() []testilla.ApiTestCase {
 		},
 		{
 			Description: "500 error in case something bad happens",
-			PathParams: testilla.ParamMap{
-				"username": testilla.Param{Value: "BadGuy"},
+			PathParams: apitest.ParamMap{
+				"username": apitest.Param{Value: "BadGuy"},
 			},
 
 			ExpectedHttpCode: 500,

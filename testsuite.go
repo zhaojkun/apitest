@@ -1,4 +1,4 @@
-package testilla
+package apitest
 
 import (
 	"fmt"
@@ -58,16 +58,6 @@ type ParamMap map[string]Param
 // of the API request
 type Param struct {
 	Value       interface{}
-	Required    bool
-	Description string
-}
-
-type ParamStringMap map[string]ParamString
-
-// Param defines a parameter that is used in headers or URL query
-// of the API request
-type ParamString struct {
-	Value       string
 	Required    bool
 	Description string
 }
