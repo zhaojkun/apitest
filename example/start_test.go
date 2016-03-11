@@ -75,7 +75,7 @@ func setupMock() {
   "public_repos": 2,
   "followers": 20
 }`
-			resp, _ := httpmock.NewJsonResponse(200, content)
+			resp := httpmock.NewStringResponse(200, content)
 			return resp, nil
 		},
 	)

@@ -52,7 +52,7 @@ func (t *GetUserTest) TestCases() []apitest.ApiTestCase {
 			},
 
 			ExpectedHttpCode: 404,
-			ExpectedData:     []byte("user someveryunknown not found"),
+			ExpectedData:     "user someveryunknown not found",
 		},
 		{
 			Description: "500 error in case something bad happens",
@@ -61,7 +61,7 @@ func (t *GetUserTest) TestCases() []apitest.ApiTestCase {
 			},
 
 			ExpectedHttpCode: 500,
-			ExpectedData:     []byte("BadGuy failed me :("),
+			ExpectedData:     "BadGuy failed me :(",
 		},
 	}
 }

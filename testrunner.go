@@ -168,7 +168,7 @@ func decodeResponse(data []byte) interface{} {
 		return dataMap
 	}
 
-	return data
+	return string(data)
 }
 
 func extractTestName(value interface{}) string {
