@@ -37,20 +37,6 @@ paths:
           description: 500 error in case something bad happens
 
 definitions:
-  HALResource:
-    properties:
-      _links:
-        $ref: '#/definitions/Links'
-    required:
-    - _links
-    type: object
-  Link:
-    properties:
-      href:
-        type: string
-    required:
-    - href
-    type: object
   Links:
     type: object
     additionalProperties:
@@ -60,10 +46,13 @@ definitions:
     properties:
       href:
         type: string
+    required:
+    - href
   User:
+    type: object
     properties:
-      HALResource:
-        $ref: '#/definitions/HALResource'
+      _links:
+        $ref: '#/definitions/Links'
       avatar_url:
         type: string
       bio:
@@ -124,6 +113,3 @@ definitions:
         type: string
       url:
         type: string
-    required:
-    - HALResource
-    type: object

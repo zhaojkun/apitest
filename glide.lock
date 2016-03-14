@@ -1,73 +1,39 @@
-hash: 287e80e326c706f745214fa60048c8f681840139b5ea43dd34d4b05939338b6b
-updated: 2016-03-14T11:51:01.616309667+07:00
+hash: 8067950b1d6ec8c0389f0b209584457017d3007a0fcc1500de8cf1f3916d1a15
+updated: 2016-03-14T15:07:37.3212491+07:00
 imports:
-- name: bitbucket.org/pkg/inflect
-  version: 8961c3750a47
-  repo: https://bitbucket.org/pkg/inflect
 - name: github.com/alecthomas/jsonschema
   version: 0700f79a1d03f83f5ad2e5e6def1940e142700c0
-- name: github.com/asaskevich/govalidator
-  version: 9699ab6b38bee2e02cd3fe8b99ecf67665395c96
-  repo: https://github.com/asaskevich/govalidator
 - name: github.com/cloudfoundry-incubator/candiedyaml
   version: 4e924c79e32959414e8c7aaed6607176d8ee79c3
-- name: github.com/codegangsta/negroni
-  version: c7477ad8e330bef55bf1ebe300cf8aa67c492d1b
 - name: github.com/davecgh/go-spew
   version: 5215b55f46b2b919f50a1df0eaa5886afe4e3b3d
   subpackages:
   - spew
-- name: github.com/fhs/go-netrc
-  version: 4422b68c9c934b03e8e53ef18c8c8714542def7e
 - name: github.com/ghodss/yaml
   version: 1a6f069841556a7bcaff4a397ca6e8328d266c2f
 - name: github.com/go-swagger/go-swagger
   version: 800b2f926c754ca7d7e0e13fac32b50e19abe3e0
   subpackages:
-  - /spec
-- name: github.com/go-swagger/scan-repo-boundary
-  version: 196ec52cfa1c96b45dd793dfa0fa3f8877b299da
-  repo: https://github.com/go-swagger/scan-repo-boundary
-- name: github.com/gorilla/context
-  version: 1ea25387ff6f684839d82767c1733ff4d4d15d0a
-  repo: https://github.com/gorilla/context
+  - spec
+  - jsonpointer
+  - jsonreference
+  - swag
 - name: github.com/jarcoal/httpmock
   version: 145b10d659265440f062c31ea15326166bae56ee
-- name: github.com/jessevdk/go-flags
-  version: 6b9493b3cb60367edd942144879646604089e3f7
-  repo: https://github.com/jessevdk/go-flags
 - name: github.com/jingweno/go-sawyer
   version: 1999ae5763d678f3ce1112cf1fda7c7e9cf2aadf
   subpackages:
-  - /hypermedia
+  - hypermedia
 - name: github.com/jtacoma/uritemplates
   version: 802b8e24dbf0f556badb3a1401a49f6bfda80ca6
-- name: github.com/klauspost/compress
-  version: 006acde2c5d283d2f8b8aa03d8f0cd2891c680cf
-- name: github.com/klauspost/cpuid
-  version: 09cded8978dc9e80714c4d85b0322337b0a1e5e0
-- name: github.com/klauspost/crc32
-  version: 19b0b332c9e4516a6370a0456e6182c3b5036720
 - name: github.com/labstack/echo
   version: b9ac79d9d49ebf2ac128cba81e44f80b2732ecf5
   subpackages:
   - middleware
-- name: github.com/labstack/gommon
-  version: c7a42f4800da9d39225ce15411f48288d622e517
-  subpackages:
-  - /color
-  - log
-- name: github.com/mattn/go-colorable
-  version: 9cbef7c35391cca05f15f8181dc0b18bc9736dbb
-- name: github.com/mattn/go-isatty
-  version: 56b76bdf51f7708750eac80fa38b952bb9f32639
-- name: github.com/naoina/denco
-  version: 9af2ba0e24214bac003821f4a501b131b2e04c75
-  repo: https://github.com/naoina/denco
 - name: github.com/octokit/go-octokit
   version: 812e91dfbd64051c1ec72c48feda0278727e8a4e
   subpackages:
-  - /octokit
+  - octokit
 - name: github.com/opennota/urlesc
   version: 5fa9ff0392746aeae1c4b37fcc42c65afa7a9587
   repo: https://github.com/opennota/urlesc
@@ -79,35 +45,10 @@ imports:
 - name: github.com/PuerkitoBio/purell
   version: d69616f51cdfcd7514d6a380847a152dfc2a749d
   repo: https://github.com/PuerkitoBio/purell
-- name: github.com/stretchr/objx
-  version: cbeaeb16a013161a98496fad62933b1d21786672
 - name: github.com/stretchr/testify
   version: 6fe211e493929a8aac0469b93f28b1d0688a9a3a
-  repo: https://github.com/stretchr/testify
   subpackages:
   - assert
-- name: github.com/tylerb/graceful
-  version: c78c8d9dded2ad16ad81b1fa526a81b2bb8049f6
-  repo: https://github.com/tylerb/graceful
-- name: github.com/valyala/fasthttp
-  version: ca2c5535a325ab129d46891de0bbe84261822b3c
-- name: golang.org/x/crypto
-  version: de93d05161db39bcbd84d3da2e54c4a18f37f0b1
-- name: golang.org/x/net
-  version: e7da8edaa52631091740908acaf2c2d4c9b3ce90
-  repo: https://go.googlesource.com/net
-  subpackages:
-  - context
-  - netutil
-- name: golang.org/x/text
-  version: a71fd10341b064c10f4a81ceac72bcf70f26ea34
-- name: golang.org/x/tools
-  version: 093d7650abf0a26882924de03a6c840a00356572
-  repo: https://go.googlesource.com/tools
-  subpackages:
-  - go/ast/astutil
-  - go/loader
-  - imports
 - name: gopkg.in/yaml.v2
   version: a83829b6f1293c91addabc89d0571c246397bbf4
 devImports: []
