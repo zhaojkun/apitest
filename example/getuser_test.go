@@ -6,7 +6,6 @@ import (
 	"github.com/seesawlabs/apitest"
 )
 
-// TODO: mock Github API call
 type GetUserTest struct {
 }
 

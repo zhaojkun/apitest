@@ -1,0 +1,143 @@
+hash: 7c09240d3928e9f1b900a32cdbfeeed2e6b4cf3056cddd30ea7d513254d66ab3
+updated: 2016-03-11T18:06:47.571374612+07:00
+imports:
+- name: github.com/alecthomas/jsonschema
+  version: 0700f79a1d03f83f5ad2e5e6def1940e142700c0
+- name: github.com/asaskevich/govalidator
+  version: 9699ab6b38bee2e02cd3fe8b99ecf67665395c96
+  repo: https://github.com/asaskevich/govalidator
+- name: github.com/bitly/go-simplejson
+  version: aabad6e819789e569bd6aabf444c935aa9ba1e44
+- name: github.com/cloudfoundry-incubator/candiedyaml
+  version: 4e924c79e32959414e8c7aaed6607176d8ee79c3
+- name: github.com/codegangsta/negroni
+  version: c7477ad8e330bef55bf1ebe300cf8aa67c492d1b
+- name: github.com/davecgh/go-spew
+  version: 5215b55f46b2b919f50a1df0eaa5886afe4e3b3d
+  repo: https://github.com/davecgh/go-spew
+  subpackages:
+  - spew
+- name: github.com/fhs/go-netrc
+  version: 4422b68c9c934b03e8e53ef18c8c8714542def7e
+- name: github.com/ghodss/yaml
+  version: 1a6f069841556a7bcaff4a397ca6e8328d266c2f
+- name: github.com/go-swagger/go-swagger
+  version: f24f306b05b4071171a2799cb99ff84d45700013
+  subpackages:
+  - /spec
+- name: github.com/go-swagger/scan-repo-boundary
+  version: 196ec52cfa1c96b45dd793dfa0fa3f8877b299da
+  repo: https://github.com/go-swagger/scan-repo-boundary
+- name: github.com/gorilla/context
+  version: 1ea25387ff6f684839d82767c1733ff4d4d15d0a
+  repo: https://github.com/gorilla/context
+- name: github.com/jarcoal/httpmock
+  version: 145b10d659265440f062c31ea15326166bae56ee
+- name: github.com/jessevdk/go-flags
+  version: 6b9493b3cb60367edd942144879646604089e3f7
+  repo: https://github.com/jessevdk/go-flags
+- name: github.com/jingweno/go-sawyer
+  version: 1999ae5763d678f3ce1112cf1fda7c7e9cf2aadf
+  subpackages:
+  - /hypermedia
+- name: github.com/jtacoma/uritemplates
+  version: 802b8e24dbf0f556badb3a1401a49f6bfda80ca6
+- name: github.com/jtolds/gls
+  version: 8ddce2a84170772b95dd5d576c48d517b22cac63
+  repo: https://github.com/jtolds/gls
+- name: github.com/klauspost/compress
+  version: 2d3d403f37d2e70b722590bc286076a17422e1f2
+- name: github.com/klauspost/cpuid
+  version: 09cded8978dc9e80714c4d85b0322337b0a1e5e0
+  repo: https://github.com/klauspost/cpuid
+- name: github.com/klauspost/crc32
+  version: 19b0b332c9e4516a6370a0456e6182c3b5036720
+  repo: https://github.com/klauspost/crc32
+- name: github.com/labstack/echo
+  version: 300d57894d77ebb9cb9eee0c31aaf3a9e08b0193
+  subpackages:
+  - middleware
+- name: github.com/labstack/gommon
+  version: c7a42f4800da9d39225ce15411f48288d622e517
+  subpackages:
+  - /color
+  - log
+- name: github.com/mattn/go-colorable
+  version: 9cbef7c35391cca05f15f8181dc0b18bc9736dbb
+- name: github.com/mattn/go-isatty
+  version: 56b76bdf51f7708750eac80fa38b952bb9f32639
+- name: github.com/mozillazg/request
+  version: c7b9b28d405aea75359a0a5dfb89f52a84632f6d
+- name: github.com/naoina/denco
+  version: 9af2ba0e24214bac003821f4a501b131b2e04c75
+  repo: https://github.com/naoina/denco
+- name: github.com/nu7hatch/gouuid
+  version: 179d4d0c4d8d407a32af483c2354df1d2c91e6c3
+  repo: https://github.com/nu7hatch/gouuid
+- name: github.com/octokit/go-octokit
+  version: 3882f84a3f446dd5eb83f631d8bcab2083bb2291
+  subpackages:
+  - /octokit
+- name: github.com/opennota/urlesc
+  version: 5fa9ff0392746aeae1c4b37fcc42c65afa7a9587
+  repo: https://github.com/opennota/urlesc
+- name: github.com/pmezard/go-difflib
+  version: 792786c7400a136282c1664665ae0a8db921c6c2
+  repo: https://github.com/pmezard/go-difflib
+  subpackages:
+  - difflib
+- name: github.com/PuerkitoBio/purell
+  version: d69616f51cdfcd7514d6a380847a152dfc2a749d
+  repo: https://github.com/PuerkitoBio/purell
+- name: github.com/Sirupsen/logrus
+  version: 219c8cb75c258c552e999735be6df753ffc7afdc
+  repo: https://github.com/Sirupsen/logrus
+- name: github.com/smartystreets/assertions
+  version: e9a2f6771d97c709b2f7609fdf89ebde8b64c926
+  repo: https://github.com/smartystreets/assertions
+- name: github.com/smartystreets/goconvey
+  version: 99f2b1e01343c8bc2d9d12f1194d2d68ce18b063
+  repo: https://github.com/smartystreets/goconvey
+- name: github.com/stretchr/objx
+  version: 1a9d0bb9f541897e62256577b352fdbc1fb4fd94
+  repo: https://github.com/stretchr/objx
+- name: github.com/stretchr/testify
+  version: 1f4a1643a57e798696635ea4c126e9127adb7d3c
+  repo: https://github.com/stretchr/testify
+- name: github.com/tylerb/graceful
+  version: 7116c7a8115899e80197cd9e0b97998c0f97ed8e
+  repo: https://github.com/tylerb/graceful
+- name: github.com/valyala/fasthttp
+  version: ca2c5535a325ab129d46891de0bbe84261822b3c
+- name: github.com/verdverm/frisby
+  version: 709764c9382cd689fa2ad9e32c0c6d831f9914a5
+- name: golang.org/x/crypto
+  version: de93d05161db39bcbd84d3da2e54c4a18f37f0b1
+- name: golang.org/x/net
+  version: 6acef71eb69611914f7a30939ea9f6e194c78172
+  repo: https://go.googlesource.com/net
+  subpackages:
+  - context
+  - netutil
+- name: golang.org/x/text
+  version: a71fd10341b064c10f4a81ceac72bcf70f26ea34
+- name: golang.org/x/tools
+  version: e852fdd89f1a2f53b9538a99c21a44a9f199218b
+  repo: https://go.googlesource.com/tools
+  subpackages:
+  - go/ast/astutil
+  - go/buildutil
+  - go/exact
+  - go/loader
+  - go/types
+  - imports
+- name: gopkg.in/airbrake/gobrake.v2
+  version: c9d51adc624b5cc4c1bf8de730a09af4878ffe2d
+  repo: https://gopkg.in/airbrake/gobrake.v2
+- name: gopkg.in/gemnasium/logrus-airbrake-hook.v2
+  version: 31e6fd4bd5a98d8ee7673d24bc54ec73c31810dd
+  repo: https://gopkg.in/gemnasium/logrus-airbrake-hook.v2
+- name: gopkg.in/yaml.v2
+  version: f7716cbe52baa25d2e9b0d0da546fcf909fc16b4
+  repo: https://gopkg.in/yaml.v2
+devImports: []

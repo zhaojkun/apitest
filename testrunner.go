@@ -66,6 +66,7 @@ func (r *basicRunner) Run(t *testing.T, tests ...IApiTest) {
 }
 
 func (r *basicRunner) encode(obj interface{}) ([]byte, error) {
+	// TODO: make it configurable
 	return json.Marshal(obj)
 }
 
@@ -94,7 +95,6 @@ func (r *basicRunner) runTest(t *testing.T, testCase ApiTestCase, method, path s
 		return
 	}
 
-	// TODO: set headers
 	for name, value := range r.DefaultHeaders {
 		req.Header.Set(name, value)
 	}
