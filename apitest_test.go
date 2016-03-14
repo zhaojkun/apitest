@@ -26,7 +26,7 @@ func TestRunApi(t *testing.T) {
 	runner.Run(t, tests...)
 }
 
-func TestGenerateSwaggerYML(t *testing.T) {
+func TestGenerateSwaggerYAML(t *testing.T) {
 	seed := spec.Swagger{}
 	seed.Host = "testapi.my"
 	seed.Produces = []string{"application/json"}
@@ -38,7 +38,7 @@ func TestGenerateSwaggerYML(t *testing.T) {
 	seed.Info.Version = "0.1"
 	seed.BasePath = "/"
 
-	generator := NewSwaggerYmlGenerator(seed)
+	generator := NewSwaggerGeneratorYAML(seed)
 	tests := []IApiTest{
 		&HelloTest{},
 		&GetUserTest{},

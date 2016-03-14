@@ -3,7 +3,8 @@ package apitest
 import (
 	"fmt"
 
-    "encoding/json"
+	"encoding/json"
+
 	"github.com/alecthomas/jsonschema"
 	"github.com/ghodss/yaml"
 	"github.com/go-swagger/go-swagger/spec"
@@ -22,15 +23,27 @@ type IDocGenerator interface {
 	Generate(tests []IApiTest) ([]byte, error)
 }
 
-type swaggerYmlGenerator struct {
-	swagger spec.Swagger
+type MarshallerFunc func(obj interface{}) ([]byte, error)
+
+type swaggerGenerator struct {
+	swagger    spec.Swagger
+	marshaller MarshallerFunc
 }
 
-// NewSwaggerYmlGenerator initializes new generator with initial swagger spec
-// as a seed. The generator produces YML output
-func NewSwaggerYmlGenerator(seed spec.Swagger) IDocGenerator {
-	gen := &swaggerYmlGenerator{
-		swagger: seed,
+// NewSwaggerGeneratorYAML initializes new generator with initial swagger spec
+// as a seed. The generator produces YAML output
+func NewSwaggerGeneratorYAML(seed spec.Swagger) IDocGenerator {
+	return NewSwaggerGenerator(seed, yaml.Marshal)
+}
+
+func NewSwaggerGeneratorJSON(seed spec.Swagger) IDocGenerator {
+	return NewSwaggerGenerator(seed, json.Marshal)
+}
+
+func NewSwaggerGenerator(seed spec.Swagger, marshaller MarshallerFunc) IDocGenerator {
+	gen := &swaggerGenerator{
+		swagger:    seed,
+		marshaller: marshaller,
 	}
 	gen.swagger.Swagger = "2.0" // from swagger doc: 'The value MUST be "2.0"'
 	gen.swagger.Paths = &spec.Paths{Paths: map[string]spec.PathItem{}}
@@ -39,7 +52,8 @@ func NewSwaggerYmlGenerator(seed spec.Swagger) IDocGenerator {
 }
 
 // Generate implements IDocGenerator
-func (g *swaggerYmlGenerator) Generate(tests []IApiTest) ([]byte, error) {
+// TODO: is there any way to control swagger generator? I don't need it to analyze anonymous fields, I want to expand them
+func (g *swaggerGenerator) Generate(tests []IApiTest) ([]byte, error) {
 	g.swagger.Definitions = spec.Definitions{}
 
 	for _, test := range tests {
@@ -71,10 +85,10 @@ func (g *swaggerYmlGenerator) Generate(tests []IApiTest) ([]byte, error) {
 		g.swagger.Paths.Paths[test.Path()] = path
 	}
 
-	return yaml.Marshal(g.swagger)
+	return g.marshaller(g.swagger)
 }
 
-func (g *swaggerYmlGenerator) generateSwaggerOperation(test IApiTest, defs spec.Definitions) (spec.Operation, error) {
+func (g *swaggerGenerator) generateSwaggerOperation(test IApiTest, defs spec.Definitions) (spec.Operation, error) {
 
 	op := spec.Operation{}
 	op.Responses = &spec.Responses{}
@@ -119,10 +133,11 @@ func (g *swaggerYmlGenerator) generateSwaggerOperation(test IApiTest, defs spec.
 				specParam.In = "body"
 				specParam.Required = true
 
-                specParam.Default = testCase.RequestBody
-                if content, err := json.MarshalIndent(testCase.RequestBody, "", "  "); err == nil {
-                    specParam.Default = string(content)
-                }
+				specParam.Default = testCase.RequestBody
+				// TODO: right now it supports json, but should support marshaller depending on MIME type
+				if content, err := json.MarshalIndent(testCase.RequestBody, "", "  "); err == nil {
+					specParam.Default = string(content)
+				}
 
 				specParam.Schema = generateSpecSchema(testCase.RequestBody, defs)
 
