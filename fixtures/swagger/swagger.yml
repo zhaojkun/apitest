@@ -1,0 +1,129 @@
+swagger: "2.0"
+info:
+  description: Our very little example API with 2 endpoints
+  title: Example API
+  version: "0.1"
+basePath: /
+host: testapi.my
+schemes:
+- http
+produces:
+- application/json
+consumes:
+- application/json
+paths:
+  /hello:
+    get:
+      description: Test for HelloWorld API handler
+      responses:
+        200:
+          description: response
+  /user/{username}:
+    get:
+      description: Test for GetUser API handler
+      parameters:
+        - name: username
+          in: path
+          required: true
+          type: string
+      responses:
+        200:
+          description: Successful getting of user details
+          schema:
+            $ref: '#/definitions/User'
+        404:
+          description: 404 error in case user not found
+        500:
+          description: 500 error in case something bad happens
+
+definitions:
+  HALResource:
+    properties:
+      _links:
+        $ref: '#/definitions/Links'
+    required:
+    - _links
+    type: object
+  Link:
+    properties:
+      href:
+        type: string
+    required:
+    - href
+    type: object
+  Links:
+    type: object
+    additionalProperties:
+      $ref: "#/definitions/Link"
+  Link:
+    type: object
+    properties:
+      href:
+        type: string
+  User:
+    properties:
+      HALResource:
+        $ref: '#/definitions/HALResource'
+      avatar_url:
+        type: string
+      bio:
+        type: string
+      blog:
+        type: string
+      company:
+        type: string
+      created_at:
+        format: date-time
+        type: string
+      email:
+        type: string
+      events_url:
+        type: string
+      followers:
+        type: integer
+      followers_url:
+        type: string
+      following:
+        type: integer
+      following_url:
+        type: string
+      gists_url:
+        type: string
+      gravatar_id:
+        type: string
+      hireable:
+        type: boolean
+      html_url:
+        type: string
+      id:
+        type: integer
+      location:
+        type: string
+      login:
+        type: string
+      name:
+        type: string
+      organizations_url:
+        type: string
+      public_repos:
+        type: integer
+      received_events_url:
+        type: string
+      repos_url:
+        type: string
+      site_admin:
+        type: boolean
+      starred_url:
+        type: string
+      subscriptions_url:
+        type: string
+      type:
+        type: string
+      updated_at:
+        format: date-time
+        type: string
+      url:
+        type: string
+    required:
+    - HALResource
+    type: object
