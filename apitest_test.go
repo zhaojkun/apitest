@@ -1,52 +1,59 @@
-package main
+package apitest
 
 import (
+	"fmt"
 	"net/http"
 	"testing"
 
 	"github.com/go-swagger/go-swagger/spec"
 	"github.com/jarcoal/httpmock"
-	"github.com/seesawlabs/apitest"
 )
 
-func TestApi(t *testing.T) {
+func TestRunApi(t *testing.T) {
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 	setupMock()
 
-	tests := []apitest.IApiTest{
+	tests := []IApiTest{
 		&HelloTest{},
 		&GetUserTest{},
 	}
 
-	runner := apitest.NewRunner("http://testapi.my/")
+	runner := NewRunner("http://testapi.my/")
 	runner.Run(t, tests...)
+}
 
-	if !t.Failed() {
-		seed := spec.Swagger{}
-		seed.Host = "testapi.my"
-		seed.Produces = []string{"application/json"}
-		seed.Consumes = []string{"application/json"}
-		seed.Schemes = []string{"http"}
-		seed.Info = &spec.Info{}
-		seed.Info.Description = "Our very little example API with 2 endpoints"
-		seed.Info.Title = "Example API"
-		seed.Info.Version = "0.1"
-		seed.BasePath = "/"
+func TestGenerateSwaggerYML(t *testing.T) {
+	seed := spec.Swagger{}
+	seed.Host = "testapi.my"
+	seed.Produces = []string{"application/json"}
+	seed.Consumes = []string{"application/json"}
+	seed.Schemes = []string{"http"}
+	seed.Info = &spec.Info{}
+	seed.Info.Description = "Our very little example API with 2 endpoints"
+	seed.Info.Title = "Example API"
+	seed.Info.Version = "0.1"
+	seed.BasePath = "/"
 
-		generator := apitest.NewSwaggerYmlGenerator(seed)
-
-		doc, err := generator.Generate(tests)
-		if err != nil {
-			t.Fatalf("could not generate docs: %s", err.Error())
-		}
-
-		t.Log(string(doc))
+	generator := NewSwaggerYmlGenerator(seed)
+	tests := []IApiTest{
+		&HelloTest{},
+		&GetUserTest{},
 	}
+
+	doc, err := generator.Generate(tests)
+	if err != nil {
+		t.Fatalf("could not generate docs: %s", err.Error())
+	}
+	fmt.Println(string(doc))
+	t.Log(string(doc))
+}
+
+func TestGenerateRaml(t *testing.T) {
+	t.Skip("for now")
 }
 
 func setupMock() {
-
 	httpmock.RegisterResponder("GET", "http://testapi.my/hello",
 		func(req *http.Request) (*http.Response, error) {
 			resp := httpmock.NewStringResponse(200, "Hello World!")

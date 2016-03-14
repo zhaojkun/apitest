@@ -1,24 +1,33 @@
-package main
+package apitest
 
-import (
-	"github.com/octokit/go-octokit/octokit"
+import "github.com/octokit/go-octokit/octokit"
 
-	"github.com/seesawlabs/apitest"
-)
+type HelloTest struct{}
 
-type GetUserTest struct {
+func (t *HelloTest) Method() string      { return "GET" }
+func (t *HelloTest) Description() string { return "Test for HelloWorld API handler" }
+func (t *HelloTest) Path() string        { return "hello" }
+func (t *HelloTest) TestCases() []ApiTestCase {
+	return []ApiTestCase{
+		{
+			ExpectedHttpCode: 200,
+			ExpectedData:     "Hello World!",
+		},
+	}
 }
+
+type GetUserTest struct{}
 
 func (t *GetUserTest) Method() string      { return "GET" }
 func (t *GetUserTest) Description() string { return "Test for GetUser API handler" }
 func (t *GetUserTest) Path() string        { return "user/{username}" }
 
-func (t *GetUserTest) TestCases() []apitest.ApiTestCase {
-	return []apitest.ApiTestCase{
+func (t *GetUserTest) TestCases() []ApiTestCase {
+	return []ApiTestCase{
 		{
 			Description: "Successful getting of user details",
-			PathParams: apitest.ParamMap{
-				"username": apitest.Param{Value: "octocat"},
+			PathParams: ParamMap{
+				"username": Param{Value: "octocat"},
 			},
 
 			ExpectedHttpCode: 200,
@@ -46,8 +55,8 @@ func (t *GetUserTest) TestCases() []apitest.ApiTestCase {
 		},
 		{
 			Description: "404 error in case user not found",
-			PathParams: apitest.ParamMap{
-				"username": apitest.Param{Value: "someveryunknown"},
+			PathParams: ParamMap{
+				"username": Param{Value: "someveryunknown"},
 			},
 
 			ExpectedHttpCode: 404,
@@ -55,8 +64,8 @@ func (t *GetUserTest) TestCases() []apitest.ApiTestCase {
 		},
 		{
 			Description: "500 error in case something bad happens",
-			PathParams: apitest.ParamMap{
-				"username": apitest.Param{Value: "BadGuy"},
+			PathParams: ParamMap{
+				"username": Param{Value: "BadGuy"},
 			},
 
 			ExpectedHttpCode: 500,
