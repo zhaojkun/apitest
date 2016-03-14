@@ -1,12 +1,15 @@
 package apitest
 
 import (
-	"fmt"
+	"io/ioutil"
 	"net/http"
 	"testing"
 
+	"gopkg.in/yaml.v2"
+
 	"github.com/go-swagger/go-swagger/spec"
 	"github.com/jarcoal/httpmock"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestRunApi(t *testing.T) {
@@ -42,11 +45,20 @@ func TestGenerateSwaggerYML(t *testing.T) {
 	}
 
 	doc, err := generator.Generate(tests)
-	if err != nil {
-		t.Fatalf("could not generate docs: %s", err.Error())
-	}
-	fmt.Println(string(doc))
-	t.Log(string(doc))
+	assert.NoError(t, err, "could not generate docs")
+
+	actual := map[string]interface{}{}
+	err = yaml.Unmarshal(doc, &actual)
+	assert.NoError(t, err, "could not unmarshal generated doc into map")
+
+	fixture, err := ioutil.ReadFile("fixtures/swagger/swagger.yml")
+	assert.NoError(t, err, "could not read fixture file")
+
+	expected := map[string]interface{}{}
+	err = yaml.Unmarshal(fixture, &expected)
+	assert.NoError(t, err, "could not unmarshal fixture into map")
+
+	assert.Equal(t, expected, actual)
 }
 
 func TestGenerateRaml(t *testing.T) {

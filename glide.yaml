@@ -15,3 +15,4 @@ import:
   subpackages:
   - /octokit
 - package: github.com/jarcoal/httpmock
+- package: gopkg.in/yaml.v2
