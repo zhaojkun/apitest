@@ -40,6 +40,12 @@ func NewSwaggerGeneratorJSON(seed spec.Swagger) IDocGenerator {
 	return NewSwaggerGenerator(seed, json.Marshal)
 }
 
+func NewSwaggerGeneratorJSONIndent(seed spec.Swagger) IDocGenerator {
+	return NewSwaggerGenerator(seed, func(obj interface{}) ([]byte, error) {
+		return json.MarshalIndent(obj, "", "    ")
+	})
+}
+
 func NewSwaggerGenerator(seed spec.Swagger, marshaller MarshallerFunc) IDocGenerator {
 	gen := &swaggerGenerator{
 		swagger:    seed,
@@ -85,7 +91,9 @@ func (g *swaggerGenerator) Generate(tests []IApiTest) ([]byte, error) {
 		g.swagger.Paths.Paths[test.Path()] = path
 	}
 
-	return g.marshaller(g.swagger)
+	d, e := g.marshaller(g.swagger)
+
+	return d, e
 }
 
 func (g *swaggerGenerator) generateSwaggerOperation(test IApiTest, defs spec.Definitions) (spec.Operation, error) {

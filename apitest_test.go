@@ -22,7 +22,7 @@ func TestRunApi(t *testing.T) {
 		&GetUserTest{},
 	}
 
-	runner := NewRunner("http://testapi.my/")
+	runner := NewRunner("http://testapi.my")
 	runner.Run(t, tests...)
 }
 

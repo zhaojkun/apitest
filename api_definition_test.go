@@ -6,7 +6,7 @@ type HelloTest struct{}
 
 func (t *HelloTest) Method() string      { return "GET" }
 func (t *HelloTest) Description() string { return "Test for HelloWorld API handler" }
-func (t *HelloTest) Path() string        { return "hello" }
+func (t *HelloTest) Path() string        { return "/hello" }
 func (t *HelloTest) TestCases() []ApiTestCase {
 	return []ApiTestCase{
 		{
@@ -20,7 +20,7 @@ type GetUserTest struct{}
 
 func (t *GetUserTest) Method() string      { return "GET" }
 func (t *GetUserTest) Description() string { return "Test for GetUser API handler" }
-func (t *GetUserTest) Path() string        { return "user/{username}" }
+func (t *GetUserTest) Path() string        { return "/user/{username}" }
 
 func (t *GetUserTest) TestCases() []ApiTestCase {
 	return []ApiTestCase{
