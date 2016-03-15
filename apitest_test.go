@@ -1,52 +1,71 @@
-package main
+package apitest
 
 import (
+	"io/ioutil"
 	"net/http"
 	"testing"
 
+	"gopkg.in/yaml.v2"
+
 	"github.com/go-swagger/go-swagger/spec"
 	"github.com/jarcoal/httpmock"
-	"github.com/seesawlabs/apitest"
+	"github.com/stretchr/testify/assert"
 )
 
-func TestApi(t *testing.T) {
+func TestRunApi(t *testing.T) {
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 	setupMock()
 
-	tests := []apitest.IApiTest{
+	tests := []IApiTest{
 		&HelloTest{},
 		&GetUserTest{},
 	}
 
-	runner := apitest.NewRunner("http://testapi.my/")
+	runner := NewRunner("http://testapi.my")
 	runner.Run(t, tests...)
+}
 
-	if !t.Failed() {
-		seed := spec.Swagger{}
-		seed.Host = "testapi.my"
-		seed.Produces = []string{"application/json"}
-		seed.Consumes = []string{"application/json"}
-		seed.Schemes = []string{"http"}
-		seed.Info = &spec.Info{}
-		seed.Info.Description = "Our very little example API with 2 endpoints"
-		seed.Info.Title = "Example API"
-		seed.Info.Version = "0.1"
-		seed.BasePath = "/"
+func TestGenerateSwaggerYAML(t *testing.T) {
+	seed := spec.Swagger{}
+	seed.Host = "testapi.my"
+	seed.Produces = []string{"application/json"}
+	seed.Consumes = []string{"application/json"}
+	seed.Schemes = []string{"http"}
+	seed.Info = &spec.Info{}
+	seed.Info.Description = "Our very little example API with 2 endpoints"
+	seed.Info.Title = "Example API"
+	seed.Info.Version = "0.1"
+	seed.BasePath = "/"
 
-		generator := apitest.NewSwaggerYmlGenerator(seed)
-
-		doc, err := generator.Generate(tests)
-		if err != nil {
-			t.Fatalf("could not generate docs: %s", err.Error())
-		}
-
-		t.Log(string(doc))
+	generator := NewSwaggerGeneratorYAML(seed)
+	tests := []IApiTest{
+		&HelloTest{},
+		&GetUserTest{},
 	}
+
+	doc, err := generator.Generate(tests)
+	assert.NoError(t, err, "could not generate docs")
+
+	actual := map[string]interface{}{}
+	err = yaml.Unmarshal(doc, &actual)
+	assert.NoError(t, err, "could not unmarshal generated doc into map")
+
+	fixture, err := ioutil.ReadFile("fixtures/swagger/swagger.yml")
+	assert.NoError(t, err, "could not read fixture file")
+
+	expected := map[string]interface{}{}
+	err = yaml.Unmarshal(fixture, &expected)
+	assert.NoError(t, err, "could not unmarshal fixture into map")
+
+	assert.Equal(t, expected, actual)
+}
+
+func TestGenerateRaml(t *testing.T) {
+	t.Skip("for now")
 }
 
 func setupMock() {
-
 	httpmock.RegisterResponder("GET", "http://testapi.my/hello",
 		func(req *http.Request) (*http.Response, error) {
 			resp := httpmock.NewStringResponse(200, "Hello World!")
