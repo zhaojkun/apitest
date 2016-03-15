@@ -1,58 +1,20 @@
 swagger: "2.0"
+basePath: /
+host: testapi.my
 info:
   description: Our very little example API with 2 endpoints
   title: Example API
   version: "0.1"
-basePath: /
-host: testapi.my
 schemes:
 - http
 produces:
 - application/json
 consumes:
 - application/json
-paths:
-  /hello:
-    get:
-      description: Test for HelloWorld API handler
-      responses:
-        200:
-          description: response
-  /user/{username}:
-    get:
-      description: Test for GetUser API handler
-      parameters:
-        - name: username
-          in: path
-          required: true
-          type: string
-      responses:
-        200:
-          description: Successful getting of user details
-          schema:
-            $ref: '#/definitions/User'
-        404:
-          description: 404 error in case user not found
-        500:
-          description: 500 error in case something bad happens
-
 definitions:
-  Links:
-    type: object
-    additionalProperties:
-      $ref: "#/definitions/Link"
-  Link:
-    type: object
-    properties:
-      href:
-        type: string
-    required:
-    - href
   User:
-    type: object
+    additionalProperties: false
     properties:
-      _links:
-        $ref: '#/definitions/Links'
       avatar_url:
         type: string
       bio:
@@ -113,3 +75,60 @@ definitions:
         type: string
       url:
         type: string
+    type: object
+paths:
+  /hello:
+    get:
+      responses:
+        "200":
+          description: Successful greeting of the world
+          examples:
+            application/json: Hello World!
+          schema:
+            type: string
+      summary: Successful greeting of the world
+  /user/{username}:
+    get:
+      parameters:
+      - default: octocat
+        in: path
+        name: username
+        required: true
+        type: string
+      responses:
+        "200":
+          description: Successful getting of user details
+          examples:
+            application/json:
+              events_url: https://api.github.com/users/octocat/events{/privacy}
+              followers: 20
+              followers_url: https://api.github.com/users/octocat/followers
+              following_url: https://api.github.com/users/octocat/following{/other_user}
+              gists_url: https://api.github.com/users/octocat/gists{/gist_id}
+              html_url: https://github.com/octocat
+              location: San Francisco
+              login: octocat
+              name: monalisa octocat
+              organizations_url: https://api.github.com/users/octocat/orgs
+              public_repos: 2
+              received_events_url: https://api.github.com/users/octocat/received_events
+              repos_url: https://api.github.com/users/octocat/repos
+              starred_url: https://api.github.com/users/octocat/starred{/owner}{/repo}
+              subscriptions_url: https://api.github.com/users/octocat/subscriptions
+              type: User
+              url: https://api.github.com/users/octocat
+          schema:
+            $ref: '#/definitions/User'
+        "404":
+          description: 404 error in case user not found
+          examples:
+            application/json: user someveryunknown not found
+          schema:
+            type: string
+        "500":
+          description: 500 error in case something bad happens
+          examples:
+            application/json: BadGuy failed me :(
+          schema:
+            type: string
+      summary: Successful getting of user details

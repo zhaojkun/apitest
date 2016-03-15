@@ -1,8 +1,8 @@
-hash: 8067950b1d6ec8c0389f0b209584457017d3007a0fcc1500de8cf1f3916d1a15
-updated: 2016-03-14T15:07:37.3212491+07:00
+hash: cb6bef397c4b7d74b9db135d9939a9f36183f3078d0d3e6e2bee9e925d554d47
+updated: 2016-03-15T17:26:49.271766541+08:00
 imports:
 - name: github.com/alecthomas/jsonschema
-  version: 0700f79a1d03f83f5ad2e5e6def1940e142700c0
+  version: 9f4e5b26ed7c5d8c89bed18400572059d71a25aa
 - name: github.com/cloudfoundry-incubator/candiedyaml
   version: 4e924c79e32959414e8c7aaed6607176d8ee79c3
 - name: github.com/davecgh/go-spew
@@ -12,28 +12,18 @@ imports:
 - name: github.com/ghodss/yaml
   version: 1a6f069841556a7bcaff4a397ca6e8328d266c2f
 - name: github.com/go-swagger/go-swagger
-  version: 800b2f926c754ca7d7e0e13fac32b50e19abe3e0
+  version: 80485082c0b7e6d0a9b1f1b0d31e4f0349fba1aa
   subpackages:
   - spec
   - jsonpointer
   - jsonreference
   - swag
-- name: github.com/jarcoal/httpmock
-  version: 145b10d659265440f062c31ea15326166bae56ee
 - name: github.com/jingweno/go-sawyer
   version: 1999ae5763d678f3ce1112cf1fda7c7e9cf2aadf
   subpackages:
   - hypermedia
 - name: github.com/jtacoma/uritemplates
   version: 802b8e24dbf0f556badb3a1401a49f6bfda80ca6
-- name: github.com/labstack/echo
-  version: b9ac79d9d49ebf2ac128cba81e44f80b2732ecf5
-  subpackages:
-  - middleware
-- name: github.com/octokit/go-octokit
-  version: 812e91dfbd64051c1ec72c48feda0278727e8a4e
-  subpackages:
-  - octokit
 - name: github.com/opennota/urlesc
   version: 5fa9ff0392746aeae1c4b37fcc42c65afa7a9587
   repo: https://github.com/opennota/urlesc
@@ -51,4 +41,5 @@ imports:
   - assert
 - name: gopkg.in/yaml.v2
   version: a83829b6f1293c91addabc89d0571c246397bbf4
+  repo: https://gopkg.in/yaml.v2
 devImports: []

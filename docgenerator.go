@@ -118,6 +118,7 @@ func (g *swaggerGenerator) generateSwaggerOperation(test IApiTest, defs spec.Def
 				params[specParam.Name+specParam.In] = specParam
 			}
 			for key, param := range testCase.PathParams {
+				param.Required = true // path parameters are always required
 				specParam, err := generateSpecParam(key, param, "path")
 				if err != nil {
 					return op, err

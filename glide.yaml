@@ -4,15 +4,10 @@ import:
 - package: github.com/ghodss/yaml
 - package: github.com/go-swagger/go-swagger
   subpackages:
-  - /spec
+  - spec
 - package: github.com/jingweno/go-sawyer
   subpackages:
-  - /hypermedia
-- package: github.com/labstack/echo
+  - hypermedia
+- package: github.com/stretchr/testify
   subpackages:
-  - middleware
-- package: github.com/octokit/go-octokit
-  subpackages:
-  - /octokit
-- package: github.com/jarcoal/httpmock
-- package: gopkg.in/yaml.v2
+  - assert
