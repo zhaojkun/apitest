@@ -143,7 +143,7 @@ func (r *basicRunner) runTest(t *testing.T, testCase ApiTestCase, method, path s
 		expectedData := decodeExpected(testCase.ExpectedData)
 		actualData := decodeResponse(responseBody)
 
-		if !assert.Equal(t, actualData, expectedData, "request and response are not equal") {
+		if !assert.Equal(t, expectedData, actualData, "request and response are not equal") {
 			return
 		}
 	} else if !assert.Empty(t, responseBody, "expected empty response") {
