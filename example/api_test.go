@@ -1,12 +1,17 @@
 package main
 
 import (
+	"flag"
 	"fmt"
+	"io"
+	"os"
 	"testing"
 
 	"github.com/go-swagger/go-swagger/spec"
 	"github.com/seesawlabs/apitest"
 )
+
+var outFile = flag.String("out", "", "where to output swagger yaml doc. Runs only if test is successful")
 
 func TestRunApi(t *testing.T) {
 
@@ -21,11 +26,28 @@ func TestRunApi(t *testing.T) {
 	runner.Run(t, tests...)
 
 	if !t.Failed() {
-		generateSwaggerYAML(t, tests)
+		var writer io.Writer
+		if outFile != nil && *outFile != "" {
+			fo, err := os.Create(*outFile)
+			if err != nil {
+				panic(err)
+			}
+			// close fo on exit and check for its returned error
+			defer func() {
+				if err := fo.Close(); err != nil {
+					panic(err)
+				}
+			}()
+
+			writer = fo
+		} else {
+			writer = os.Stdout
+		}
+		generateSwaggerYAML(t, tests, writer)
 	}
 }
 
-func generateSwaggerYAML(t *testing.T, tests []apitest.IApiTest) {
+func generateSwaggerYAML(t *testing.T, tests []apitest.IApiTest, writer io.Writer) {
 	seed := spec.Swagger{}
 	seed.Host = "localhost"
 	seed.Produces = []string{"application/json"}
@@ -44,5 +66,5 @@ func generateSwaggerYAML(t *testing.T, tests []apitest.IApiTest) {
 		t.Fatalf("could not generate doc: %s", err.Error())
 	}
 
-	fmt.Println(string(doc))
+	fmt.Fprint(writer, string(doc))
 }
