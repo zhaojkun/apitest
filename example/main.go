@@ -43,7 +43,11 @@ func createUser() echo.HandlerFunc {
 func getUser() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		id, _ := strconv.Atoi(c.Param("id"))
-		return c.JSON(http.StatusOK, users[id])
+		user, ok := users[id]
+		if !ok {
+			return c.NoContent(http.StatusNotFound)
+		}
+		return c.JSON(http.StatusOK, user)
 	}
 }
 

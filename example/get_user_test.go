@@ -21,5 +21,12 @@ func (t *GetUserTest) TestCases() []apitest.ApiTestCase {
 				Name: "Second User",
 			},
 		},
+		{
+			Description:      "User was not found",
+			ExpectedHttpCode: 404,
+			PathParams: apitest.ParamMap{
+				"user_id": apitest.Param{Value: -10},
+			},
+		},
 	}
 }
