@@ -81,10 +81,36 @@ func getTests() []IApiTest {
 	return []IApiTest{
 		&HelloTest{},
 		&GetUserTest{},
+		&CreateUserTest{},
+		&UpdateUserTest{},
+		&DeleteUserTest{},
 	}
 }
 
 func setupMock() {
+
+	testUser := User{
+		EventsURL:         "https://api.github.com/users/octocat/events{/privacy}",
+		Followers:         20,
+		FollowersURL:      "https://api.github.com/users/octocat/followers",
+		Following:         0,
+		FollowingURL:      "https://api.github.com/users/octocat/following{/other_user}",
+		GistsURL:          "https://api.github.com/users/octocat/gists{/gist_id}",
+		Hireable:          false,
+		HTMLURL:           "https://github.com/octocat",
+		Location:          "San Francisco",
+		Login:             "octocat",
+		Name:              "monalisa octocat",
+		OrganizationsURL:  "https://api.github.com/users/octocat/orgs",
+		PublicRepos:       2,
+		ReceivedEventsURL: "https://api.github.com/users/octocat/received_events",
+		ReposURL:          "https://api.github.com/users/octocat/repos",
+		StarredURL:        "https://api.github.com/users/octocat/starred{/owner}{/repo}",
+		SubscriptionsURL:  "https://api.github.com/users/octocat/subscriptions",
+		Type:              "User",
+		URL:               "https://api.github.com/users/octocat",
+	}
+
 	httpmock.RegisterResponder("GET", "http://testapi.my/hello",
 		func(req *http.Request) (*http.Response, error) {
 			resp := httpmock.NewStringResponse(200, "Hello World!")
@@ -94,27 +120,7 @@ func setupMock() {
 
 	httpmock.RegisterResponder("GET", "http://testapi.my/user/octocat",
 		func(req *http.Request) (*http.Response, error) {
-			content := `{
-  "login": "octocat",
-  "url": "https://api.github.com/users/octocat",
-  "html_url": "https://github.com/octocat",
-  "followers_url": "https://api.github.com/users/octocat/followers",
-  "following_url": "https://api.github.com/users/octocat/following{/other_user}",
-  "gists_url": "https://api.github.com/users/octocat/gists{/gist_id}",
-  "starred_url": "https://api.github.com/users/octocat/starred{/owner}{/repo}",
-  "subscriptions_url": "https://api.github.com/users/octocat/subscriptions",
-  "organizations_url": "https://api.github.com/users/octocat/orgs",
-  "repos_url": "https://api.github.com/users/octocat/repos",
-  "events_url": "https://api.github.com/users/octocat/events{/privacy}",
-  "received_events_url": "https://api.github.com/users/octocat/received_events",
-  "type": "User",
-  "name": "monalisa octocat",
-  "location": "San Francisco",
-  "public_repos": 2,
-  "followers": 20
-}`
-			resp := httpmock.NewStringResponse(200, content)
-			return resp, nil
+			return httpmock.NewJsonResponse(200, testUser)
 		},
 	)
 
@@ -126,6 +132,41 @@ func setupMock() {
 	)
 
 	httpmock.RegisterResponder("GET", "http://testapi.my/user/BadGuy",
+		func(req *http.Request) (*http.Response, error) {
+			resp := httpmock.NewStringResponse(500, "BadGuy failed me :(")
+			return resp, nil
+		},
+	)
+
+	httpmock.RegisterResponder("POST", "http://testapi.my/user",
+		func(req *http.Request) (*http.Response, error) {
+			return httpmock.NewJsonResponse(201, testUser)
+		},
+	)
+
+	httpmock.RegisterResponder("PATCH", "http://testapi.my/user/octocat",
+		func(req *http.Request) (*http.Response, error) {
+			patchedUser := testUser
+			patchedUser.Name = "I Am Updated!"
+			return httpmock.NewJsonResponse(200, patchedUser)
+		},
+	)
+
+	httpmock.RegisterResponder("DELETE", "http://testapi.my/user/octocat",
+		func(req *http.Request) (*http.Response, error) {
+			resp := httpmock.NewBytesResponse(204, nil)
+			return resp, nil
+		},
+	)
+
+	httpmock.RegisterResponder("DELETE", "http://testapi.my/user/someveryunknown",
+		func(req *http.Request) (*http.Response, error) {
+			resp := httpmock.NewStringResponse(404, "user someveryunknown not found")
+			return resp, nil
+		},
+	)
+
+	httpmock.RegisterResponder("DELETE", "http://testapi.my/user/BadGuy",
 		func(req *http.Request) (*http.Response, error) {
 			resp := httpmock.NewStringResponse(500, "BadGuy failed me :(")
 			return resp, nil
