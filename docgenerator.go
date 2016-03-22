@@ -103,37 +103,55 @@ func (g *swaggerGenerator) generateSwaggerOperation(test IApiTest, defs spec.Def
 	op.Responses.StatusCodeResponses = map[int]spec.Response{}
 
 	var description string
-	params := map[string]spec.Parameter{}
+	processedQueryParams := map[string]interface{}{}
+	processedPathParams := map[string]interface{}{}
+	processedHeaderParams := map[string]interface{}{}
 	for _, testCase := range test.TestCases() {
 		// parameter definitions are collected from 2xx tests only
 		if testCase.ExpectedHttpCode >= 200 && testCase.ExpectedHttpCode < 300 {
 			description = testCase.Description
 
-			for key, param := range testCase.QueryParams {
-				specParam, err := generateSpecParam(key, param, "query")
+			for key, param := range testCase.Headers {
+				if _, ok := processedHeaderParams[key]; ok {
+					continue
+				}
+
+				specParam, err := generateSpecParam(key, param, "header")
 				if err != nil {
 					return op, err
 				}
 
-				params[specParam.Name+specParam.In] = specParam
+				processedHeaderParams[key] = nil
+				op.Parameters = append(op.Parameters, specParam)
 			}
+
 			for key, param := range testCase.PathParams {
+				if _, ok := processedPathParams[key]; ok {
+					continue
+				}
 				param.Required = true // path parameters are always required
 				specParam, err := generateSpecParam(key, param, "path")
 				if err != nil {
 					return op, err
 				}
 
-				params[specParam.Name+specParam.In] = specParam
+				processedPathParams[key] = nil
+				op.Parameters = append(op.Parameters, specParam)
 			}
 
-			for key, param := range testCase.Headers {
-				specParam, err := generateSpecParam(key, param, "header")
+			for key, param := range testCase.QueryParams {
+
+				if _, ok := processedQueryParams[key]; ok {
+					continue
+				}
+
+				specParam, err := generateSpecParam(key, param, "query")
 				if err != nil {
 					return op, err
 				}
 
-				params[specParam.Name+specParam.In] = specParam
+				processedQueryParams[key] = nil
+				op.Parameters = append(op.Parameters, specParam)
 			}
 
 			if testCase.RequestBody != nil {
@@ -142,15 +160,13 @@ func (g *swaggerGenerator) generateSwaggerOperation(test IApiTest, defs spec.Def
 				specParam.In = "body"
 				specParam.Required = true
 
-				specParam.Default = testCase.RequestBody
 				// TODO: right now it supports json, but should support marshaller depending on MIME type
 				if content, err := json.MarshalIndent(testCase.RequestBody, "", "  "); err == nil {
-					specParam.Default = string(content)
+					specParam.Description = string(content)
 				}
 
 				specParam.Schema = generateSpecSchema(testCase.RequestBody, defs)
-
-				params[specParam.Name+specParam.In] = specParam
+				op.Parameters = append(op.Parameters, specParam)
 			}
 		}
 
@@ -166,9 +182,6 @@ func (g *swaggerGenerator) generateSwaggerOperation(test IApiTest, defs spec.Def
 		op.Responses.StatusCodeResponses[testCase.ExpectedHttpCode] = response
 	}
 
-	for _, param := range params {
-		op.Parameters = append(op.Parameters, param)
-	}
 	op.Summary = description
 	if taggable, ok := test.(ITaggable); ok {
 		op.Tags = []string{taggable.Tag()}

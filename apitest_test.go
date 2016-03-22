@@ -59,14 +59,14 @@ func TestGenerateSwaggerYAML(t *testing.T) {
 	assert.NoError(t, err)
 
 	// checking equality of generated and expected doc
-	actual := map[string]interface{}{}
+	actual := map[interface{}]interface{}{}
 	err = yaml.Unmarshal(doc, &actual)
 	assert.NoError(t, err, "could not unmarshal generated doc into map")
 
 	fixture, err := ioutil.ReadFile("fixtures/swagger/swagger.yml")
 	assert.NoError(t, err, "could not read fixture file")
 
-	expected := map[string]interface{}{}
+	expected := map[interface{}]interface{}{}
 	err = yaml.Unmarshal(fixture, &expected)
 	assert.NoError(t, err, "could not unmarshal fixture into map")
 
