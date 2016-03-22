@@ -60,7 +60,10 @@ func (t *GetUserTest) TestCases() []ApiTestCase {
 		{
 			Description: "Successful getting of user details",
 			Headers: ParamMap{
-				"Content-Type": Param{Value: "application/json;charset=UTF-8"},
+				"Content-Type": Param{Value: "application/json"},
+			},
+			ExpectedHeaders: map[string]string{
+				"Content-Type": "application/json",
 			},
 			PathParams: ParamMap{
 				"username": Param{Value: "octocat"},
@@ -121,7 +124,10 @@ func (t *CreateUserTest) TestCases() []ApiTestCase {
 			Description:      "User created successfully",
 			ExpectedHttpCode: 201,
 			Headers: ParamMap{
-				"Content-Type": Param{Value: "application/json;charset=UTF-8"},
+				"Content-Type": Param{Value: "application/json"},
+			},
+			ExpectedHeaders: map[string]string{
+				"Content-Type": "application/json",
 			},
 
 			RequestBody: User{
@@ -217,7 +223,7 @@ func (t *UpdateUserTest) TestCases() []ApiTestCase {
 			Description:      "User updated successfully",
 			ExpectedHttpCode: 200,
 			Headers: ParamMap{
-				"Content-Type": Param{Value: "application/json;charset=UTF-8"},
+				"Content-Type": Param{Value: "application/json"},
 			},
 			PathParams: ParamMap{
 				"username": Param{Value: "octocat"},
@@ -225,6 +231,10 @@ func (t *UpdateUserTest) TestCases() []ApiTestCase {
 
 			RequestBody: User{
 				Name: "I Am Updated!",
+			},
+
+			ExpectedHeaders: map[string]string{
+				"Content-Type": "application/json",
 			},
 
 			ExpectedData: User{
