@@ -8,6 +8,9 @@ import (
 	"gopkg.in/yaml.v2"
 
 	"github.com/go-swagger/go-swagger/spec"
+	"github.com/go-swagger/go-swagger/strfmt"
+	"github.com/go-swagger/go-swagger/swag"
+	"github.com/go-swagger/go-swagger/validate"
 	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/assert"
 )
@@ -17,10 +20,7 @@ func TestRunApi(t *testing.T) {
 	defer httpmock.DeactivateAndReset()
 	setupMock()
 
-	tests := []IApiTest{
-		&HelloTest{},
-		&GetUserTest{},
-	}
+	tests := getTests()
 
 	runner := NewRunner("http://testapi.my")
 	runner.Run(t, tests...)
@@ -39,10 +39,7 @@ func TestGenerateSwaggerYAML(t *testing.T) {
 	seed.BasePath = "/"
 
 	generator := NewSwaggerGeneratorYAML(seed)
-	tests := []IApiTest{
-		&HelloTest{},
-		&GetUserTest{},
-	}
+	tests := getTests()
 
 	doc, err := generator.Generate(tests)
 	assert.NoError(t, err, "could not generate docs")
@@ -59,6 +56,46 @@ func TestGenerateSwaggerYAML(t *testing.T) {
 	assert.NoError(t, err, "could not unmarshal fixture into map")
 
 	assert.Equal(t, expected, actual)
+}
+
+func TestValidateSwaggerYAML(t *testing.T) {
+	seed := spec.Swagger{}
+	seed.Host = "testapi.my"
+	seed.Produces = []string{"application/json"}
+	seed.Consumes = []string{"application/json"}
+	seed.Schemes = []string{"http"}
+	seed.Info = &spec.Info{}
+	seed.Info.Description = "Our very little example API with 2 endpoints"
+	seed.Info.Title = "Example API"
+	seed.Info.Version = "0.1"
+	seed.BasePath = "/"
+
+	generator := NewSwaggerGeneratorYAML(seed)
+
+	tests := getTests()
+
+	doc, err := generator.Generate(tests)
+	assert.NoError(t, err, "could not generate docs")
+
+	yamlMap := map[interface{}]interface{}{}
+	err = yaml.Unmarshal(doc, &yamlMap)
+	assert.NoError(t, err, "could not unmarshal generated doc into map")
+
+	rawJSON, err := swag.YAMLToJSON(yamlMap)
+	assert.NoError(t, err)
+
+	swaggerDoc, err := spec.New(rawJSON, "")
+	assert.NoError(t, err)
+
+	err = validate.Spec(swaggerDoc, strfmt.Default)
+	assert.NoError(t, err)
+}
+
+func getTests() []IApiTest {
+	return []IApiTest{
+		&HelloTest{},
+		&GetUserTest{},
+	}
 }
 
 func TestGenerateRaml(t *testing.T) {
