@@ -44,6 +44,21 @@ func TestGenerateSwaggerYAML(t *testing.T) {
 	doc, err := generator.Generate(tests)
 	assert.NoError(t, err, "could not generate docs")
 
+	// checking validity of generated swagger doc
+	yamlMap := map[interface{}]interface{}{}
+	err = yaml.Unmarshal(doc, &yamlMap)
+	assert.NoError(t, err, "could not unmarshal generated doc into map")
+
+	rawJSON, err := swag.YAMLToJSON(yamlMap)
+	assert.NoError(t, err)
+
+	swaggerDoc, err := spec.New(rawJSON, "")
+	assert.NoError(t, err)
+
+	err = validate.Spec(swaggerDoc, strfmt.Default)
+	assert.NoError(t, err)
+
+	// checking equality of generated and expected doc
 	actual := map[string]interface{}{}
 	err = yaml.Unmarshal(doc, &actual)
 	assert.NoError(t, err, "could not unmarshal generated doc into map")
@@ -58,37 +73,8 @@ func TestGenerateSwaggerYAML(t *testing.T) {
 	assert.Equal(t, expected, actual)
 }
 
-func TestValidateSwaggerYAML(t *testing.T) {
-	seed := spec.Swagger{}
-	seed.Host = "testapi.my"
-	seed.Produces = []string{"application/json"}
-	seed.Consumes = []string{"application/json"}
-	seed.Schemes = []string{"http"}
-	seed.Info = &spec.Info{}
-	seed.Info.Description = "Our very little example API with 2 endpoints"
-	seed.Info.Title = "Example API"
-	seed.Info.Version = "0.1"
-	seed.BasePath = "/"
-
-	generator := NewSwaggerGeneratorYAML(seed)
-
-	tests := getTests()
-
-	doc, err := generator.Generate(tests)
-	assert.NoError(t, err, "could not generate docs")
-
-	yamlMap := map[interface{}]interface{}{}
-	err = yaml.Unmarshal(doc, &yamlMap)
-	assert.NoError(t, err, "could not unmarshal generated doc into map")
-
-	rawJSON, err := swag.YAMLToJSON(yamlMap)
-	assert.NoError(t, err)
-
-	swaggerDoc, err := spec.New(rawJSON, "")
-	assert.NoError(t, err)
-
-	err = validate.Spec(swaggerDoc, strfmt.Default)
-	assert.NoError(t, err)
+func TestGenerateRaml(t *testing.T) {
+	t.Skip("for now")
 }
 
 func getTests() []IApiTest {
@@ -96,10 +82,6 @@ func getTests() []IApiTest {
 		&HelloTest{},
 		&GetUserTest{},
 	}
-}
-
-func TestGenerateRaml(t *testing.T) {
-	t.Skip("for now")
 }
 
 func setupMock() {
