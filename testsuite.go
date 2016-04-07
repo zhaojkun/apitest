@@ -33,6 +33,10 @@ type ITeardownable interface {
 	TearDown() error
 }
 
+// AssertResponseFunc defines function that asserts that expected object equals to
+// given response body
+type AssertResponseFunc func(t *testing.T, expected interface{}, responseBody []byte) bool
+
 // ApiTestCase provides use case of some API endpoint: input and expected output.
 //
 // Test case knows nothing about API endpoint itself. Path of an API endpoint and
@@ -56,7 +60,7 @@ type ApiTestCase struct {
 	// instead of ExpectedData. If provided, it is fully responsible
 	// for processing of API response payload and assertion with
 	// expected data.
-	AssertResponse func(t *testing.T, expected interface{}, responseBody []byte) bool
+	AssertResponse AssertResponseFunc
 }
 
 type ParamMap map[string]Param
