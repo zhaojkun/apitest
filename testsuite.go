@@ -3,6 +3,7 @@ package apitest
 import (
 	"fmt"
 	"net/url"
+	"testing"
 
 	"github.com/jingweno/go-sawyer/hypermedia"
 )
@@ -50,6 +51,12 @@ type ApiTestCase struct {
 	ExpectedHttpCode int
 	ExpectedHeaders  map[string]string
 	ExpectedData     interface{}
+
+	// AssertResponse is a custom assertion logic that can be used
+	// instead of ExpectedData. If provided, it is fully responsible
+	// for processing of API response payload and assertion with
+	// expected data.
+	AssertResponse func(t *testing.T, expected interface{}, responseBody []byte) bool
 }
 
 type ParamMap map[string]Param

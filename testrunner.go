@@ -139,16 +139,24 @@ func (r *basicRunner) runTest(t *testing.T, testCase ApiTestCase, method, path s
 		}
 	}
 
-	if testCase.ExpectedData != nil {
-		expectedData := decodeExpected(testCase.ExpectedData)
+	if testCase.AssertResponse != nil {
+		testCase.AssertResponse(t, testCase.ExpectedData, responseBody)
+	} else {
+		AssertResponse(t, testCase.ExpectedData, responseBody)
+	}
+}
+
+// AssertResponse checks that given expected object contains the same data
+// as provided responseBody.
+func AssertResponse(t *testing.T, expected interface{}, responseBody []byte) bool {
+	if expected != nil {
+		expectedData := decodeExpected(expected)
 		actualData := decodeResponse(responseBody)
 
-		if !assert.Equal(t, expectedData, actualData, "request and response are not equal") {
-			return
-		}
-	} else if !assert.Empty(t, responseBody, "expected empty response") {
-		return
+		return assert.Equal(t, expectedData, actualData, "request and response are not equal")
 	}
+
+	return assert.Empty(t, responseBody, "expected empty response")
 }
 
 // decodeExpected processes expected data into representation used for comparison to actual data
