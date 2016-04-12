@@ -74,7 +74,21 @@ func TestGenerateSwaggerYAML(t *testing.T) {
 }
 
 func TestGenerateRaml(t *testing.T) {
-	t.Skip("for now")
+
+	generator := NewRamlGenerator()
+	tests := getTests()
+
+	doc, err := generator.Generate(tests)
+	assert.NoError(t, err, "could not generate docs")
+
+	fixture, err := ioutil.ReadFile("fixtures/raml/raml.yml")
+	assert.NoError(t, err, "could not read fixture file")
+
+	expected := map[interface{}]interface{}{}
+	err = yaml.Unmarshal(fixture, &expected)
+	assert.NoError(t, err, "could not unmarshal fixture into map")
+
+	assert.Equal(t, expected, actual)
 }
 
 func getTests() []IApiTest {
