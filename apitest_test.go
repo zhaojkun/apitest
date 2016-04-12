@@ -12,6 +12,7 @@ import (
 	"github.com/go-swagger/go-swagger/swag"
 	"github.com/go-swagger/go-swagger/validate"
 	"github.com/jarcoal/httpmock"
+	"github.com/seesawlabs/raml"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -74,12 +75,38 @@ func TestGenerateSwaggerYAML(t *testing.T) {
 }
 
 func TestGenerateRaml(t *testing.T) {
+	seed := raml.APIDefinition{}
+	seed.Version = "0.1"
+	seed.Title = "Example API"
+	seed.Description = "Our very little example API with 2 endpoints"
+	seed.BaseUri = "http://testapi.my/"
+	seed.Protocols = []string{"http", "https"}
+	seed.MediaType = "application/json"
+	seed.Title = "Example API"
 
-	generator := NewRamlGenerator()
+	generator := NewRamlGenerator(seed)
 	tests := getTests()
 
 	doc, err := generator.Generate(tests)
 	assert.NoError(t, err, "could not generate docs")
+
+	yamlMap := map[interface{}]interface{}{}
+	err = yaml.Unmarshal(doc, &yamlMap)
+	assert.NoError(t, err, "could not unmarshal generated doc into map")
+
+	rawJSON, err := swag.YAMLToJSON(yamlMap)
+	assert.NoError(t, err)
+
+	swaggerDoc, err := spec.New(rawJSON, "")
+	assert.NoError(t, err)
+
+	err = validate.Spec(swaggerDoc, strfmt.Default)
+	assert.NoError(t, err)
+
+	// checking equality of generated and expected doc
+	actual := map[interface{}]interface{}{}
+	err = yaml.Unmarshal(doc, &actual)
+	assert.NoError(t, err, "could not unmarshal generated doc into map")
 
 	fixture, err := ioutil.ReadFile("fixtures/raml/raml.yml")
 	assert.NoError(t, err, "could not read fixture file")

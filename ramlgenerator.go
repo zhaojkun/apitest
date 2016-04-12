@@ -1,42 +1,19 @@
 package apitest
 
+import "github.com/seesawlabs/raml"
+
 type ramlGenerator struct {
+	doc raml.APIDefinition
 }
 
-func NewRamlGenerator() IDocGenerator {
-	gen := &ramlGenerator{}
+func NewRamlGenerator(seed raml.APIDefinition) IDocGenerator {
+	generator := &ramlGenerator{
+		doc: seed,
+	}
 
-	return gen
-}
+	generator.doc.RAMLVersion = "1.0"
 
-type APIDefinition struct {
-	// TODO: hardcode
-	RAMLVersion string `yaml:"raml_version"`
-	// TODO: from seed
-	Title string `yaml:"title"`
-	// TODO: from seed
-	Version string `yaml:"version"`
-	// TODO: from seed
-	BaseUri string `yaml:"baseUri"`
-	// TODO: from seed
-	BaseUriParameters map[string]NamedParameter `yaml:"baseUriParameters"`
-
-	UriParameters map[string]NamedParameter `yaml:"uriParameters"`
-	// TODO: from seed
-	Protocols []string `yaml:"protocols"`
-	// TODO: from seed
-	Description     string                      `yaml:"description"`
-	MediaType       string                      `yaml:"mediaType"`
-	SecuritySchemes []map[string]SecurityScheme `yaml:"securitySchemes"`
-	Types           []map[string]string
-	ResourceTypes   []map[string]ResourceType `yaml:"resourceTypes"`
-	Traits          []map[string]Trait        `yaml:"traits"`
-	SecuredBy       []DefinitionChoice        `yaml:"securedBy"`
-	Documentation   []Documentation           `yaml:"documentation"`
-	// Annotations
-	// AnnotationTypes
-	// Uses
-	Resources map[string]Resource `yaml:",regexp:/.*"`
+	return generator
 }
 
 func (g *ramlGenerator) Generate(tests []IApiTest) ([]byte, error) {
