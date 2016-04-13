@@ -7,12 +7,12 @@ import (
 
 	"gopkg.in/yaml.v2"
 
+	"github.com/go-raml/raml"
 	"github.com/go-swagger/go-swagger/spec"
 	"github.com/go-swagger/go-swagger/strfmt"
 	"github.com/go-swagger/go-swagger/swag"
 	"github.com/go-swagger/go-swagger/validate"
 	"github.com/jarcoal/httpmock"
-	"github.com/seesawlabs/raml"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -78,7 +78,6 @@ func TestGenerateRaml(t *testing.T) {
 	seed := raml.APIDefinition{}
 	seed.Version = "0.1"
 	seed.Title = "Example API"
-	seed.Description = "Our very little example API with 2 endpoints"
 	seed.BaseUri = "http://testapi.my/"
 	seed.Protocols = []string{"http", "https"}
 	seed.MediaType = "application/json"
