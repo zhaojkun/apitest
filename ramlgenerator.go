@@ -2,13 +2,12 @@ package apitest
 
 import (
 	"encoding/json"
-	"fmt"
+	"reflect"
+	"time"
 
-	"gopkg.in/yaml.v2"
-
-	// "github.com/advance512/yaml"
 	"github.com/elgris/jsonschema"
-	"github.com/go-raml/raml"
+	"github.com/seesawlabs/raml"
+	"gopkg.in/yaml.v2"
 )
 
 type ramlGenerator struct {
@@ -62,6 +61,7 @@ func (g *ramlGenerator) Generate(tests []IApiTest) ([]byte, error) {
 				uriParam.Description = param.Description
 				uriParam.Required = param.Required
 				uriParam.Default = param.Value
+				uriParam.Type = resolveRamlType(param.Value)
 
 				processedPathParams[key] = nil
 				resource.UriParameters[key] = uriParam
@@ -77,6 +77,7 @@ func (g *ramlGenerator) Generate(tests []IApiTest) ([]byte, error) {
 				h.Description = param.Description
 				h.Required = param.Required
 				h.Default = param.Value
+				h.Type = resolveRamlType(param.Value)
 
 				m.Headers[raml.HTTPHeader(key)] = h
 				processedHeaderParams[key] = nil
@@ -87,14 +88,15 @@ func (g *ramlGenerator) Generate(tests []IApiTest) ([]byte, error) {
 					continue
 				}
 
-				uriParam := raml.NamedParameter{}
-				uriParam.Name = key
-				uriParam.Description = param.Description
-				uriParam.Required = param.Required
-				uriParam.Default = param.Value
+				queryParam := raml.NamedParameter{}
+				queryParam.Name = key
+				queryParam.Description = param.Description
+				queryParam.Required = param.Required
+				queryParam.Default = param.Value
+				queryParam.Type = resolveRamlType(param.Value)
 
 				processedQueryParams[key] = nil
-				m.QueryParameters[key] = uriParam
+				m.QueryParameters[key] = queryParam
 			}
 
 			response := raml.Response{}
@@ -102,10 +104,10 @@ func (g *ramlGenerator) Generate(tests []IApiTest) ([]byte, error) {
 			response.HTTPCode = raml.HTTPCode(testCase.ExpectedHttpCode)
 			if testCase.ExpectedData != nil {
 				schema := jsonschema.Reflect(testCase.ExpectedData)
-				schemaBytes, _ := json.Marshal(schema)
+				schemaBytes, _ := json.MarshalIndent(schema, "", "  ")
 				response.Bodies.DefaultSchema = string(schemaBytes)
 
-				exampleBytes, _ := json.Marshal(testCase.ExpectedData)
+				exampleBytes, _ := json.MarshalIndent(testCase.ExpectedData, "", "  ")
 				response.Bodies.DefaultExample = string(exampleBytes)
 			}
 
@@ -133,8 +135,34 @@ func (g *ramlGenerator) Generate(tests []IApiTest) ([]byte, error) {
 		g.doc.Resources[path] = resource
 	}
 
-	fmt.Printf("%+v\n\n\n", g.doc)
 	d, e := yaml.Marshal(g.doc)
-	fmt.Println("FOOOO", string(d))
+
 	return d, e
+}
+
+func resolveRamlType(data interface{}) string {
+	switch data.(type) {
+	case []byte:
+		return "string"
+	case time.Time, *time.Time:
+		return "date"
+	default:
+		val := reflect.ValueOf(data)
+		tpe := val.Type()
+		switch tpe.Kind() {
+		case reflect.Bool:
+			return "boolean"
+		case reflect.String:
+			return "string"
+		case reflect.Int8, reflect.Int16, reflect.Int32, reflect.Uint8, reflect.Uint16, reflect.Uint32:
+			fallthrough
+		case reflect.Int, reflect.Int64, reflect.Uint, reflect.Uint64:
+			return "integer"
+		case reflect.Float32, reflect.Float64:
+			return "number"
+		case reflect.Ptr:
+			return resolveRamlType(reflect.Indirect(val).Interface())
+		}
+	}
+	return ""
 }
