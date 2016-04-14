@@ -12,6 +12,7 @@ import (
 	"github.com/go-swagger/go-swagger/swag"
 	"github.com/go-swagger/go-swagger/validate"
 	"github.com/jarcoal/httpmock"
+	"github.com/seesawlabs/raml"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -74,7 +75,34 @@ func TestGenerateSwaggerYAML(t *testing.T) {
 }
 
 func TestGenerateRaml(t *testing.T) {
-	t.Skip("for now")
+	seed := raml.APIDefinition{}
+	seed.Version = "0.1"
+	seed.Title = "Example API"
+	seed.BaseUri = "http://testapi.my/"
+	seed.Protocols = []string{"HTTP", "HTTPS"}
+	seed.MediaType = "application/json"
+	seed.Title = "Example API"
+
+	generator := NewRamlGenerator(seed)
+	tests := getTests()
+
+	doc, err := generator.Generate(tests)
+	assert.NoError(t, err, "could not generate docs")
+	assert.Equal(t, "#%RAML 0.8", string(doc[0:10]), "Specific RAML header is expected")
+
+	// checking equality of generated and expected doc
+	actual := map[interface{}]interface{}{}
+	err = yaml.Unmarshal(doc, &actual)
+	assert.NoError(t, err, "could not unmarshal generated doc into map")
+
+	fixture, err := ioutil.ReadFile("fixtures/raml/raml.yml")
+	assert.NoError(t, err, "could not read fixture file")
+
+	expected := map[interface{}]interface{}{}
+	err = yaml.Unmarshal(fixture, &expected)
+	assert.NoError(t, err, "could not unmarshal fixture into map")
+
+	assert.Equal(t, expected, actual)
 }
 
 func getTests() []IApiTest {

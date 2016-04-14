@@ -1,0 +1,108 @@
+{
+	"ImportPath": "github.com/seesawlabs/apitest",
+	"GoVersion": "go1.6",
+	"Deps": [
+		{
+			"ImportPath": "github.com/PuerkitoBio/purell",
+			"Comment": "v0.1.0-23-gd69616f",
+			"Rev": "d69616f51cdfcd7514d6a380847a152dfc2a749d"
+		},
+		{
+			"ImportPath": "github.com/alecthomas/jsonschema",
+			"Rev": "0700f79a1d03f83f5ad2e5e6def1940e142700c0"
+		},
+		{
+			"ImportPath": "github.com/asaskevich/govalidator",
+			"Comment": "v3-7-gd1e14c5",
+			"Rev": "d1e14c504700969ddf41264c7f3e084c7b99de59"
+		},
+		{
+			"ImportPath": "github.com/davecgh/go-spew/spew",
+			"Rev": "5215b55f46b2b919f50a1df0eaa5886afe4e3b3d"
+		},
+		{
+			"ImportPath": "github.com/ghodss/yaml",
+			"Rev": "73d445a93680fa1a78ae23a5839bad48f32ba1ee"
+		},
+		{
+			"ImportPath": "github.com/go-swagger/go-swagger/errors",
+			"Comment": "0.5.0-58-gf6472e8",
+			"Rev": "f6472e8f8201938d27397d40ddc897552a94955f"
+		},
+		{
+			"ImportPath": "github.com/go-swagger/go-swagger/httpkit",
+			"Comment": "0.5.0-58-gf6472e8",
+			"Rev": "f6472e8f8201938d27397d40ddc897552a94955f"
+		},
+		{
+			"ImportPath": "github.com/go-swagger/go-swagger/internal/validate",
+			"Comment": "0.5.0-58-gf6472e8",
+			"Rev": "f6472e8f8201938d27397d40ddc897552a94955f"
+		},
+		{
+			"ImportPath": "github.com/go-swagger/go-swagger/jsonpointer",
+			"Comment": "0.5.0-58-gf6472e8",
+			"Rev": "f6472e8f8201938d27397d40ddc897552a94955f"
+		},
+		{
+			"ImportPath": "github.com/go-swagger/go-swagger/jsonreference",
+			"Comment": "0.5.0-58-gf6472e8",
+			"Rev": "f6472e8f8201938d27397d40ddc897552a94955f"
+		},
+		{
+			"ImportPath": "github.com/go-swagger/go-swagger/spec",
+			"Comment": "0.5.0-58-gf6472e8",
+			"Rev": "f6472e8f8201938d27397d40ddc897552a94955f"
+		},
+		{
+			"ImportPath": "github.com/go-swagger/go-swagger/strfmt",
+			"Comment": "0.5.0-58-gf6472e8",
+			"Rev": "f6472e8f8201938d27397d40ddc897552a94955f"
+		},
+		{
+			"ImportPath": "github.com/go-swagger/go-swagger/swag",
+			"Comment": "0.5.0-58-gf6472e8",
+			"Rev": "f6472e8f8201938d27397d40ddc897552a94955f"
+		},
+		{
+			"ImportPath": "github.com/go-swagger/go-swagger/validate",
+			"Comment": "0.5.0-58-gf6472e8",
+			"Rev": "f6472e8f8201938d27397d40ddc897552a94955f"
+		},
+		{
+			"ImportPath": "github.com/jarcoal/httpmock",
+			"Rev": "145b10d659265440f062c31ea15326166bae56ee"
+		},
+		{
+			"ImportPath": "github.com/jingweno/go-sawyer/hypermedia",
+			"Rev": "1999ae5763d678f3ce1112cf1fda7c7e9cf2aadf"
+		},
+		{
+			"ImportPath": "github.com/jtacoma/uritemplates",
+			"Comment": "0.1-16-g802b8e2",
+			"Rev": "802b8e24dbf0f556badb3a1401a49f6bfda80ca6"
+		},
+		{
+			"ImportPath": "github.com/opennota/urlesc",
+			"Rev": "5fa9ff0392746aeae1c4b37fcc42c65afa7a9587"
+		},
+		{
+			"ImportPath": "github.com/pmezard/go-difflib/difflib",
+			"Rev": "d8ed2627bdf02c080bf22230dbb337003b7aba2d"
+		},
+		{
+			"ImportPath": "github.com/seesawlabs/raml",
+			"Comment": "0.8-2-gc7ccad0",
+			"Rev": "c7ccad0cd4ded02905d368fa25da2f8cf662d17d"
+		},
+		{
+			"ImportPath": "github.com/stretchr/testify/assert",
+			"Comment": "v1.0-79-ge7a1d88",
+			"Rev": "e7a1d8890c7638d7bb50e3e498de4a1e913a28cf"
+		},
+		{
+			"ImportPath": "gopkg.in/yaml.v2",
+			"Rev": "53feefa2559fb8dfa8d81baad31be332c97d6c77"
+		}
+	]
+}
