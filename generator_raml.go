@@ -2,30 +2,35 @@ package apitest
 
 import (
 	"encoding/json"
+	"fmt"
 	"reflect"
 	"time"
 
-	"github.com/elgris/jsonschema"
+	"github.com/alecthomas/jsonschema"
 	"github.com/seesawlabs/raml"
 	"gopkg.in/yaml.v2"
 )
 
 type ramlGenerator struct {
-	doc raml.APIDefinition
+	seed raml.APIDefinition
 }
 
+// NewRamlGenerator creates an instance of RAML generator
+// seed as used as a source of initial data for resulting doc
 func NewRamlGenerator(seed raml.APIDefinition) IDocGenerator {
 	generator := &ramlGenerator{
-		doc: seed,
+		seed: seed,
 	}
 
-	generator.doc.RAMLVersion = "0.8"
-	generator.doc.Resources = map[string]raml.Resource{}
+	generator.seed.RAMLVersion = "0.8"
+	generator.seed.Resources = map[string]raml.Resource{}
 
 	return generator
 }
 
 func (g *ramlGenerator) Generate(tests []IApiTest) ([]byte, error) {
+	doc := g.seed // copy seed
+
 	for _, test := range tests {
 		// path MUST begin with '/'
 		path := test.Path()
@@ -33,17 +38,18 @@ func (g *ramlGenerator) Generate(tests []IApiTest) ([]byte, error) {
 			path = "/" + path
 		}
 
-		resource := g.doc.Resources[path]
-		if resource.UriParameters == nil {
+		resource, ok := doc.Resources[path]
+		if !ok { // new resource created by default
 			resource.UriParameters = map[string]raml.NamedParameter{}
 		}
 
-		m := raml.Method{}
-		m.Responses = map[raml.HTTPCode]raml.Response{}
-		m.Headers = map[raml.HTTPHeader]raml.Header{}
-		m.QueryParameters = map[string]raml.NamedParameter{}
-		m.Description = test.Description()
-		m.Name = test.Method()
+		m := raml.Method{
+			Responses:       map[raml.HTTPCode]raml.Response{},
+			Headers:         map[raml.HTTPHeader]raml.Header{},
+			QueryParameters: map[string]raml.NamedParameter{},
+			Description:     test.Description(),
+			Name:            test.Method(),
+		}
 
 		processedHeaderParams := map[string]interface{}{}
 		processedPathParams := map[string]interface{}{}
@@ -56,12 +62,7 @@ func (g *ramlGenerator) Generate(tests []IApiTest) ([]byte, error) {
 					continue
 				}
 
-				uriParam := raml.NamedParameter{}
-				uriParam.Name = key
-				uriParam.Description = param.Description
-				uriParam.Required = param.Required
-				uriParam.Default = param.Value
-				uriParam.Type = resolveRamlType(param.Value)
+				uriParam := generateRamlNamedParameter(key, param)
 
 				processedPathParams[key] = nil
 				resource.UriParameters[key] = uriParam
@@ -72,14 +73,9 @@ func (g *ramlGenerator) Generate(tests []IApiTest) ([]byte, error) {
 					continue
 				}
 
-				h := raml.Header{}
-				h.Name = key
-				h.Description = param.Description
-				h.Required = param.Required
-				h.Default = param.Value
-				h.Type = resolveRamlType(param.Value)
+				h := generateRamlNamedParameter(key, param)
 
-				m.Headers[raml.HTTPHeader(key)] = h
+				m.Headers[raml.HTTPHeader(key)] = raml.Header(h)
 				processedHeaderParams[key] = nil
 			}
 
@@ -88,12 +84,7 @@ func (g *ramlGenerator) Generate(tests []IApiTest) ([]byte, error) {
 					continue
 				}
 
-				queryParam := raml.NamedParameter{}
-				queryParam.Name = key
-				queryParam.Description = param.Description
-				queryParam.Required = param.Required
-				queryParam.Default = param.Value
-				queryParam.Type = resolveRamlType(param.Value)
+				queryParam := generateRamlNamedParameter(key, param)
 
 				processedQueryParams[key] = nil
 				m.QueryParameters[key] = queryParam
@@ -104,9 +95,12 @@ func (g *ramlGenerator) Generate(tests []IApiTest) ([]byte, error) {
 			response.HTTPCode = raml.HTTPCode(testCase.ExpectedHttpCode)
 			if testCase.ExpectedData != nil {
 				schema := jsonschema.Reflect(testCase.ExpectedData)
+
+				// TODO: marshal data according to MIME type, coming soon with RAML 1.0
 				schemaBytes, _ := json.MarshalIndent(schema, "", "  ")
 				response.Bodies.DefaultSchema = string(schemaBytes)
 
+				// TODO: marshal data according to MIME type, coming soon with RAML 1.0
 				exampleBytes, _ := json.MarshalIndent(testCase.ExpectedData, "", "  ")
 				response.Bodies.DefaultExample = string(exampleBytes)
 			}
@@ -132,12 +126,27 @@ func (g *ramlGenerator) Generate(tests []IApiTest) ([]byte, error) {
 			resource.Head = &m
 		}
 
-		g.doc.Resources[path] = resource
+		doc.Resources[path] = resource
 	}
 
-	d, e := yaml.Marshal(g.doc)
+	generatedDoc, err := yaml.Marshal(doc)
+	if err == nil {
+		header := []byte(fmt.Sprintf("#%%RAML %s\n", doc.RAMLVersion))
+		generatedDoc = append(header, generatedDoc...)
 
-	return d, e
+	}
+
+	return generatedDoc, err
+}
+
+func generateRamlNamedParameter(paramKey string, param Param) raml.NamedParameter {
+	return raml.NamedParameter{
+		Name:        paramKey,
+		Description: param.Description,
+		Required:    param.Required,
+		Default:     param.Value,
+		Type:        resolveRamlType(param.Value),
+	}
 }
 
 func resolveRamlType(data interface{}) string {

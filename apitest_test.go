@@ -88,6 +88,7 @@ func TestGenerateRaml(t *testing.T) {
 
 	doc, err := generator.Generate(tests)
 	assert.NoError(t, err, "could not generate docs")
+	assert.Equal(t, "#%RAML 0.8", string(doc[0:10]), "Specific RAML header is expected")
 
 	// checking equality of generated and expected doc
 	actual := map[interface{}]interface{}{}
