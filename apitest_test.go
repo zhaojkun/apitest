@@ -7,10 +7,11 @@ import (
 
 	"gopkg.in/yaml.v2"
 
-	"github.com/go-swagger/go-swagger/spec"
-	"github.com/go-swagger/go-swagger/strfmt"
-	"github.com/go-swagger/go-swagger/swag"
-	"github.com/go-swagger/go-swagger/validate"
+	"github.com/go-openapi/loads"
+	"github.com/go-openapi/loads/fmts"
+	"github.com/go-openapi/spec"
+	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/validate"
 	"github.com/jarcoal/httpmock"
 	"github.com/seesawlabs/raml"
 	"github.com/stretchr/testify/assert"
@@ -50,10 +51,10 @@ func TestGenerateSwaggerYAML(t *testing.T) {
 	err = yaml.Unmarshal(doc, &yamlMap)
 	assert.NoError(t, err, "could not unmarshal generated doc into map")
 
-	rawJSON, err := swag.YAMLToJSON(yamlMap)
+	rawJSON, err := fmts.YAMLToJSON(yamlMap)
 	assert.NoError(t, err)
 
-	swaggerDoc, err := spec.New(rawJSON, "")
+	swaggerDoc, err := loads.Analyzed(rawJSON, "")
 	assert.NoError(t, err)
 
 	err = validate.Spec(swaggerDoc, strfmt.Default)

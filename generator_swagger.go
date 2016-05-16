@@ -6,7 +6,7 @@ import (
 
 	"github.com/alecthomas/jsonschema"
 	"github.com/ghodss/yaml"
-	"github.com/go-swagger/go-swagger/spec"
+	"github.com/go-openapi/spec"
 )
 
 type MarshallerFunc func(obj interface{}) ([]byte, error)

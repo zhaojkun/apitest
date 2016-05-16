@@ -25,49 +25,44 @@
 			"Rev": "73d445a93680fa1a78ae23a5839bad48f32ba1ee"
 		},
 		{
-			"ImportPath": "github.com/go-swagger/go-swagger/errors",
-			"Comment": "0.5.0-58-gf6472e8",
-			"Rev": "f6472e8f8201938d27397d40ddc897552a94955f"
+			"ImportPath": "github.com/go-openapi/analysis",
+			"Rev": "5a8fe2138f95138797c306c07e65e759c55f898f"
 		},
 		{
-			"ImportPath": "github.com/go-swagger/go-swagger/httpkit",
-			"Comment": "0.5.0-58-gf6472e8",
-			"Rev": "f6472e8f8201938d27397d40ddc897552a94955f"
+			"ImportPath": "github.com/go-openapi/errors",
+			"Rev": "b6a74a9df33099a5a952e7d1dbfe93dfa6b7a076"
 		},
 		{
-			"ImportPath": "github.com/go-swagger/go-swagger/internal/validate",
-			"Comment": "0.5.0-58-gf6472e8",
-			"Rev": "f6472e8f8201938d27397d40ddc897552a94955f"
+			"ImportPath": "github.com/go-openapi/jsonpointer",
+			"Rev": "f5133566e18f23f2085d953998fd72959b698623"
 		},
 		{
-			"ImportPath": "github.com/go-swagger/go-swagger/jsonpointer",
-			"Comment": "0.5.0-58-gf6472e8",
-			"Rev": "f6472e8f8201938d27397d40ddc897552a94955f"
+			"ImportPath": "github.com/go-openapi/jsonreference",
+			"Rev": "44d0c05f81b60f99eeb8c188b8983ec82e5d872f"
 		},
 		{
-			"ImportPath": "github.com/go-swagger/go-swagger/jsonreference",
-			"Comment": "0.5.0-58-gf6472e8",
-			"Rev": "f6472e8f8201938d27397d40ddc897552a94955f"
+			"ImportPath": "github.com/go-openapi/loads",
+			"Rev": "3a4490f96e6ea1ba7d66602e70ffca0fc26aa6ca"
 		},
 		{
-			"ImportPath": "github.com/go-swagger/go-swagger/spec",
-			"Comment": "0.5.0-58-gf6472e8",
-			"Rev": "f6472e8f8201938d27397d40ddc897552a94955f"
+			"ImportPath": "github.com/go-openapi/runtime",
+			"Rev": "2c5be669b936d7250fa464dcbebabb69cb44f1e1"
 		},
 		{
-			"ImportPath": "github.com/go-swagger/go-swagger/strfmt",
-			"Comment": "0.5.0-58-gf6472e8",
-			"Rev": "f6472e8f8201938d27397d40ddc897552a94955f"
+			"ImportPath": "github.com/go-openapi/spec",
+			"Rev": "1f40fcb077ed32379da3eeb494f76fb2285e31b8"
 		},
 		{
-			"ImportPath": "github.com/go-swagger/go-swagger/swag",
-			"Comment": "0.5.0-58-gf6472e8",
-			"Rev": "f6472e8f8201938d27397d40ddc897552a94955f"
+			"ImportPath": "github.com/go-openapi/strfmt",
+			"Rev": "66a99d45c3043d45d346b1c8db5dc2f76a004869"
 		},
 		{
-			"ImportPath": "github.com/go-swagger/go-swagger/validate",
-			"Comment": "0.5.0-58-gf6472e8",
-			"Rev": "f6472e8f8201938d27397d40ddc897552a94955f"
+			"ImportPath": "github.com/go-openapi/swag",
+			"Rev": "f8ab07bb33bb43a743eb65daf0588ab522e5160f"
+		},
+		{
+			"ImportPath": "github.com/go-openapi/validate",
+			"Rev": "f9db1b89d08ead629cde1e6cab275c329fe89bed"
 		},
 		{
 			"ImportPath": "github.com/jarcoal/httpmock",
