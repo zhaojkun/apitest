@@ -22,7 +22,7 @@ func TestRunApi(t *testing.T) {
 		&DeleteUserTest{},
 	}
 
-	runner := apitest.NewRunner("http://localhost:1323")
+	runner := apitest.NewRunner("http://localhost:1323", apitest.RunnerConfig{})
 	runner.Run(t, tests...)
 
 	if !t.Failed() {

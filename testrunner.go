@@ -20,19 +20,49 @@ type ITestRunner interface {
 	Run(tests []IApiTest, t *testing.T)
 }
 
-type basicRunner struct {
+// IHttpClient defines an interface of HTTP client that can fire HTTP requests
+// and return responses.
+type IHttpClient interface {
+	Do(req *http.Request) (resp *http.Response, err error)
+}
+
+// IHttpClientFunc implements IHttpClient in a functional way
+type IHttpClientFunc func(req *http.Request) (resp *http.Response, err error)
+
+func (f IHttpClientFunc) Do(req *http.Request) (resp *http.Response, err error) { return f(req) }
+
+type httpRunner struct {
 	DefaultHeaders map[string]string
 	BaseUrl        string
+	HttpClient     IHttpClient
 }
 
-func NewRunner(baseUrl string) *basicRunner {
-	return &basicRunner{
+// RunnerConfig contains list of possible options that can be used to initialize
+// the Runner
+type RunnerConfig struct {
+	DefaultHeaders map[string]string
+	HttpClient     IHttpClient
+}
+
+// NewRunner creates new instance of HTTP runner
+func NewRunner(baseUrl string, config RunnerConfig) *httpRunner {
+	r := &httpRunner{
 		DefaultHeaders: make(map[string]string),
 		BaseUrl:        baseUrl,
+		HttpClient:     &http.Client{},
 	}
+
+	if config.DefaultHeaders != nil {
+		r.DefaultHeaders = config.DefaultHeaders
+	}
+	if config.HttpClient != nil {
+		r.HttpClient = config.HttpClient
+	}
+
+	return r
 }
 
-func (r *basicRunner) Run(t *testing.T, tests ...IApiTest) {
+func (r *httpRunner) Run(t *testing.T, tests ...IApiTest) {
 	for _, test := range tests {
 		testName := extractTestName(test)
 		// setup test
@@ -65,12 +95,12 @@ func (r *basicRunner) Run(t *testing.T, tests ...IApiTest) {
 	}
 }
 
-func (r *basicRunner) encode(obj interface{}) ([]byte, error) {
+func (r *httpRunner) encode(obj interface{}) ([]byte, error) {
 	// TODO: make it configurable
 	return json.Marshal(obj)
 }
 
-func (r *basicRunner) runTest(t *testing.T, testCase ApiTestCase, method, path string) {
+func (r *httpRunner) runTest(t *testing.T, testCase ApiTestCase, method, path string) {
 	urlstring := r.BaseUrl + path
 	url, err := testCase.Url(urlstring)
 	if !assert.NoError(t, err, "could not prepare an url") {
@@ -106,8 +136,7 @@ func (r *basicRunner) runTest(t *testing.T, testCase ApiTestCase, method, path s
 		}
 	}
 
-	client := &http.Client{}
-	resp, err := client.Do(req)
+	resp, err := r.HttpClient.Do(req)
 	if !assert.NoError(t, err, "failed sending a request") {
 		return
 	}

@@ -24,7 +24,7 @@ func TestRunApi(t *testing.T) {
 
 	tests := getTests()
 
-	runner := NewRunner("http://testapi.my")
+	runner := NewRunner("http://testapi.my", RunnerConfig{})
 	runner.Run(t, tests...)
 }
 
