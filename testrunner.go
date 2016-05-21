@@ -20,6 +20,12 @@ type ITestRunner interface {
 	Run(tests []IApiTest, t *testing.T)
 }
 
+// INameable is an interface that defines that entity can provide its name.
+// Used by test runner to define name of the test.
+type INameable interface {
+	Name() string
+}
+
 // IHttpClient defines an interface of HTTP client that can fire HTTP requests
 // and return responses.
 type IHttpClient interface {
@@ -209,6 +215,9 @@ func decodeResponse(data []byte) interface{} {
 }
 
 func extractTestName(value interface{}) string {
+	if nameable, ok := value.(INameable); ok {
+		return nameable.Name()
+	}
 	return reflect.TypeOf(value).String()
 }
 
