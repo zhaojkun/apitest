@@ -9,6 +9,7 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/elgris/jsondiff"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -188,10 +189,14 @@ func AssertResponse(t *testing.T, expected interface{}, responseBody []byte) boo
 		expectedData := decodeExpected(expected)
 		actualData := decodeResponse(responseBody)
 
-		return assert.Equal(t, expectedData, actualData, "request and response are not equal")
+		diff := jsondiff.Compare(expectedData, actualData)
+		if !diff.IsEqual() {
+			return assert.Fail(t, string(jsondiff.Format(diff)), "request and response are not equal")
+		}
+		return true
 	}
 
-	return assert.Empty(t, responseBody, "expected empty response")
+	return assert.Empty(t, string(responseBody), "expected empty response")
 }
 
 // decodeExpected processes expected data into representation used for comparison to actual data

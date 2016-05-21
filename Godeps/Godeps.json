@@ -21,6 +21,10 @@
 			"Rev": "5215b55f46b2b919f50a1df0eaa5886afe4e3b3d"
 		},
 		{
+			"ImportPath": "github.com/elgris/jsondiff",
+			"Rev": "82cbc8016876387f6e7cb7749b1497625bc7a433"
+		},
+		{
 			"ImportPath": "github.com/ghodss/yaml",
 			"Rev": "73d445a93680fa1a78ae23a5839bad48f32ba1ee"
 		},
@@ -76,6 +80,10 @@
 			"ImportPath": "github.com/jtacoma/uritemplates",
 			"Comment": "0.1-16-g802b8e2",
 			"Rev": "802b8e24dbf0f556badb3a1401a49f6bfda80ca6"
+		},
+		{
+			"ImportPath": "github.com/mgutz/ansi",
+			"Rev": "c286dcecd19ff979eeb73ea444e479b903f2cfcb"
 		},
 		{
 			"ImportPath": "github.com/opennota/urlesc",
