@@ -152,19 +152,6 @@ func (r *httpRunner) runTest(t *testing.T, testCase ApiTestCase, method, path st
 		return
 	}
 
-	if !assert.Equal(t, testCase.ExpectedHttpCode, resp.StatusCode) {
-		return
-	}
-
-	// asserting headers
-	if testCase.ExpectedHeaders != nil {
-		for header, value := range testCase.ExpectedHeaders {
-			if !assert.Equal(t, value, resp.Header.Get(header)) {
-				return
-			}
-		}
-	}
-
 	var responseBody []byte
 	if resp.Body != nil {
 		defer resp.Body.Close()
@@ -172,6 +159,23 @@ func (r *httpRunner) runTest(t *testing.T, testCase ApiTestCase, method, path st
 		responseBody, err = ioutil.ReadAll(resp.Body)
 		if !assert.NoError(t, err) {
 			return
+		}
+	}
+
+	if !assert.Equal(t, testCase.ExpectedHttpCode, resp.StatusCode) {
+		t.Logf("body received: %s", string(responseBody))
+
+		return
+	}
+
+	// asserting headers
+	if testCase.ExpectedHeaders != nil {
+		for header, value := range testCase.ExpectedHeaders {
+			if !assert.Equal(t, value, resp.Header.Get(header)) {
+				t.Logf("body received: %s", string(responseBody))
+
+				return
+			}
 		}
 	}
 
