@@ -9,7 +9,6 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/elgris/jsondiff"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -190,16 +189,21 @@ func (r *httpRunner) runTest(t *testing.T, testCase ApiTestCase, method, path st
 // as provided responseBody.
 func AssertResponse(t *testing.T, expected interface{}, responseBody []byte) bool {
 	if expected != nil {
-		expectedData := decodeExpected(expected)
-		actualData := decodeResponse(responseBody)
-
-		diff := jsondiff.Compare(expectedData, actualData)
-		if !diff.IsEqual() {
-			return assert.Fail(t, string(jsondiff.Format(diff)), "request and response are not equal")
+		var ebuf []byte
+		if buf, ok := expected.([]byte); ok {
+			ebuf = buf
+		} else {
+			ebuf, _ = json.Marshal(expected)
 		}
-		return true
+		var aval, eval interface{}
+		json.Unmarshal(responseBody, &aval)
+		json.Unmarshal(ebuf, &eval)
+		if reflect.DeepEqual(aval, eval) {
+			return true
+		}
+		errorBuf := fmt.Sprintf("expected:\n%s\nactual:\n%s\n", string(ebuf), string(responseBody))
+		return assert.Fail(t, errorBuf, "request and response are not equal")
 	}
-
 	return assert.Empty(t, string(responseBody), "expected empty response")
 }
 
